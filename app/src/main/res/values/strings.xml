@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CellSentinelApp</string>
+    <string name="nav_signal">信号</string>
+    <string name="nav_drivetest">路测</string>
+    <string name="nav_profile">我的</string>
+    <string name="login_title">登录</string>
+    <string name="permission_required">需要位置和电话权限才能读取基站信息</string>
+    <string name="no_data">暂无数据</string>
+</resources>
