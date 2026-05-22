@@ -58,21 +58,46 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadCaptcha() {
+        mIvCaptcha.setAlpha(0.4f);
+        mIvCaptcha.setImageBitmap(null);
         RuoyiApi.getCaptcha(this, new RuoyiApi.CaptchaCallback() {
             @Override
             public void onSuccess(Bitmap image, String uuid) {
                 mCaptchaUuid = uuid;
                 mIvCaptcha.setImageBitmap(image);
+                mIvCaptcha.setAlpha(1.0f);
                 mEtCaptcha.setText("");
+                // Re-show in case a previous error had hidden them
+                mIvCaptcha.setVisibility(View.VISIBLE);
+                ((View) mEtCaptcha.getParent().getParent()).setVisibility(View.VISIBLE);
+                mTvError.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onDisabled() {
+                // Server has captcha turned off — hide the row entirely
+                hideCaptchaRow();
             }
 
             @Override
             public void onError(String msg) {
-                // Captcha may be disabled on server; hide field and proceed without it
-                mIvCaptcha.setVisibility(View.GONE);
-                mEtCaptcha.setVisibility(View.GONE);
+                // Network error or wrong URL — keep captcha visible so user can tap to retry
+                mIvCaptcha.setAlpha(1.0f);
+                mIvCaptcha.setImageResource(android.R.drawable.ic_menu_rotate);
+                showError("验证码加载失败，点击图片重试");
             }
         });
+    }
+
+    /**
+     * Called when server confirms captcha is disabled.
+     * Hides the captcha row completely so the user doesn't need to fill it in.
+     */
+    private void hideCaptchaRow() {
+        mIvCaptcha.setVisibility(View.GONE);
+        // Hide the TextInputLayout wrapper (grandparent of TextInputEditText)
+        View inputLayout = (View) mEtCaptcha.getParent().getParent();
+        if (inputLayout != null) inputLayout.setVisibility(View.GONE);
     }
 
     private void doLogin() {

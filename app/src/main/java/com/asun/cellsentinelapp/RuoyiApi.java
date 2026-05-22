@@ -27,7 +27,10 @@ public class RuoyiApi {
 
     public interface CaptchaCallback {
         void onSuccess(Bitmap image, String uuid);
+        /** Called when the server request failed (network error, wrong URL, etc.). */
         void onError(String msg);
+        /** Called when the server explicitly says captcha is disabled. Default: no-op. */
+        default void onDisabled() {}
     }
 
     public interface UserInfoCallback {
@@ -49,10 +52,20 @@ public class RuoyiApi {
             public void onSuccess(String body) {
                 try {
                     JSONObject obj = new JSONObject(body);
-                    String img  = obj.getString("img");
-                    String uuid = obj.getString("uuid");
+                    // RuoYi returns captchaEnabled:false when captcha is turned off
+                    if (!obj.optBoolean("captchaEnabled", true)) {
+                        cb.onDisabled();
+                        return;
+                    }
+                    String img  = obj.optString("img",  "");
+                    String uuid = obj.optString("uuid", "");
+                    if (img.isEmpty()) {
+                        cb.onDisabled();
+                        return;
+                    }
                     byte[] bytes = Base64.decode(img, Base64.DEFAULT);
                     Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    if (bm == null) { cb.onError("验证码图片解码失败"); return; }
                     cb.onSuccess(bm, uuid);
                 } catch (Exception e) {
                     cb.onError("验证码解析失败: " + e.getMessage());

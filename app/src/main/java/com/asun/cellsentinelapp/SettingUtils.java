@@ -11,7 +11,7 @@ public class SettingUtils {
     private static final String KEY_USERNAME   = "username";
     private static final String KEY_NICK_NAME  = "nick_name";
 
-    public static final String DEFAULT_SERVER_URL = "http://101.126.148.254:19977";
+    public static final String DEFAULT_SERVER_URL = "http://192.168.202.19:8080";
 
     private static SharedPreferences prefs(Context ctx) {
         return ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);

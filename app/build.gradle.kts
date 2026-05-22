@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.viewpager)
     implementation(libs.recyclerview)
     implementation(libs.okhttp)
+    implementation(libs.osmdroid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

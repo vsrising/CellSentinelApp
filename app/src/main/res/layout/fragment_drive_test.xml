@@ -1,95 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="0dp">
+    android:layout_height="match_parent">
 
-    <!-- Status bar -->
-    <LinearLayout
+    <!-- ── Full-screen Map ──────────────────────────────────────── -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- ── Top toolbar (layer + measure + refresh) ──────────────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="?attr/colorSurface"
-        android:elevation="4dp">
+        android:layout_alignParentTop="true"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#DDFFFFFF">
 
-        <TextView
-            android:id="@+id/tv_gps_status"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="等待 GPS..."
-            android:fontFamily="monospace"
-            android:textSize="12sp" />
+            android:orientation="horizontal"
+            android:padding="6dp"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tv_record_count"
+            <Spinner
+                android:id="@+id/spinner_layer"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_measure"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="测距"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingHorizontal="8dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_refresh_cells"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="刷新基站"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingHorizontal="8dp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── GPS + recording status ────────────────────────────────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_top"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="4dp"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#BBFFFFFF">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="已录制 0 条"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tv_gps_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="等待 GPS..."
+                android:fontFamily="monospace"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_record_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="已录制 0 条"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── Measurement result (shown only in measure mode) ──────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_measure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#EEF5F5">
+
+        <TextView
+            android:id="@+id/tv_measure_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
             android:textStyle="bold"
-            android:textSize="14sp"
-            android:paddingTop="4dp" />
+            android:textSize="15sp" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── Zoom buttons (right side) ─────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_zoom_in"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="+"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:padding="0dp"
+            android:onClick="zoomIn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_marginBottom="2dp" />
+
+        <Button
+            android:id="@+id/btn_zoom_out"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="−"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:padding="0dp"
+            android:onClick="zoomOut"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     </LinearLayout>
 
-    <!-- Record list -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_records"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:padding="4dp" />
-
-    <!-- Action buttons -->
+    <!-- ── Bottom action bar ──────────────────────────────────────── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#EEF5F5F5"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="?attr/colorSurface"
-        android:elevation="8dp">
+        android:padding="8dp">
 
         <Button
             android:id="@+id/btn_start_stop"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="2"
             android:text="开始路测"
             android:textAllCaps="false"
+            android:textSize="13sp"
             android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/btn_export"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="导出CSV"
+            android:text="导出"
             android:textAllCaps="false"
+            android:textSize="12sp"
             android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/btn_upload"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="上报"
             android:textAllCaps="false"
+            android:textSize="12sp"
             android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/btn_clear"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="清除"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
