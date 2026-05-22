@@ -96,9 +96,22 @@ public class SectorDrawer {
         return line;
     }
 
+    // ── Named marker at cell site ─────────────────────────────────────────────
+
+    /** Visible marker at the cell site showing cell name; tap to see details. */
+    public static Marker nameLabel(MapView mapView, double lat, double lon,
+                                   String title, String snippet) {
+        Marker m = new Marker(mapView);
+        m.setPosition(new GeoPoint(lat, lon));
+        m.setTitle(title);
+        m.setSnippet(snippet);
+        m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        return m;
+    }
+
     // ── Distance label marker ─────────────────────────────────────────────────
 
-    /** Invisible marker at midpoint carrying a snippet with the distance. */
+    /** Invisible midpoint marker; tap to show distance. */
     public static Marker distanceMarker(MapView mapView,
                                          double lat1, double lon1,
                                          double lat2, double lon2,
@@ -111,7 +124,7 @@ public class SectorDrawer {
         m.setTitle(label);
         m.setSnippet(formatDistance(distM));
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-        m.setAlpha(0f);  // invisible pin, tap to show info
+        m.setAlpha(0f);
         return m;
     }
 

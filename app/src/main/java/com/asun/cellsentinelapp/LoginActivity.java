@@ -118,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String token) {
                         setLoading(false);
-                        // Fetch user info after login
+                        SettingUtils.setNeedCacheRefresh(LoginActivity.this, true);
                         RuoyiApi.getInfo(LoginActivity.this, new RuoyiApi.UserInfoCallback() {
                             @Override
                             public void onSuccess(String u, String n) {
@@ -130,7 +130,6 @@ public class LoginActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(String msg) {
-                                // Login succeeded even if getInfo fails
                                 finish();
                             }
                         });

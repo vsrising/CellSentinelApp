@@ -6,10 +6,11 @@ import android.content.SharedPreferences;
 public class SettingUtils {
 
     private static final String PREF_NAME = "cell_sentinel_prefs";
-    private static final String KEY_SERVER_URL = "server_url";
-    private static final String KEY_TOKEN      = "auth_token";
-    private static final String KEY_USERNAME   = "username";
-    private static final String KEY_NICK_NAME  = "nick_name";
+    private static final String KEY_SERVER_URL         = "server_url";
+    private static final String KEY_TOKEN              = "auth_token";
+    private static final String KEY_USERNAME           = "username";
+    private static final String KEY_NICK_NAME          = "nick_name";
+    private static final String KEY_NEED_CACHE_REFRESH = "need_cache_refresh";
 
     public static final String DEFAULT_SERVER_URL = "http://192.168.202.19:8080";
 
@@ -55,5 +56,13 @@ public class SettingUtils {
 
     public static void setNickName(Context ctx, String nickName) {
         prefs(ctx).edit().putString(KEY_NICK_NAME, nickName).apply();
+    }
+
+    public static boolean getNeedCacheRefresh(Context ctx) {
+        return prefs(ctx).getBoolean(KEY_NEED_CACHE_REFRESH, false);
+    }
+
+    public static void setNeedCacheRefresh(Context ctx, boolean need) {
+        prefs(ctx).edit().putBoolean(KEY_NEED_CACHE_REFRESH, need).apply();
     }
 }

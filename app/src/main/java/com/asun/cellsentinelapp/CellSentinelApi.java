@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Wrapper for CellSentinelPG API endpoints.
- * Server: http://<configured>:8080 (same JWT auth as RuoYi)
+ * Each query method: on backend success → store in cache; on backend error → serve from cache.
  */
 public class CellSentinelApi {
 
@@ -21,90 +21,119 @@ public class CellSentinelApi {
 
     // ── LTE queries ──────────────────────────────────────────────────────────
 
-    /**
-     * Exact CI match: query by eNodeBId + cellId derived from lte_CI.
-     * LTE CI decomposition (Chinese carriers): eNodeBId = CI >> 8, cellId = CI & 0xFF.
-     */
     public static void getLteCellsByCi(Context ctx, long enodebId, int cellId, int pageSize,
                                         CellListCallback<LteCellInfo> cb) {
+        String key  = "lte_ci_" + enodebId + "_" + cellId;
         String path = "/system/infolte/list?enodebId=" + enodebId
                     + "&cellId=" + cellId
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
-            @Override public void onSuccess(String body) { cb.onSuccess(parseLteList(body)); }
-            @Override public void onError(String message) { cb.onError(message); }
+            @Override public void onSuccess(String body) {
+                List<LteCellInfo> cells = parseLteList(body);
+                CellInfoCache.storeLteCells(ctx, key, cells);
+                cb.onSuccess(cells);
+            }
+            @Override public void onError(String message) {
+                List<LteCellInfo> cached = CellInfoCache.loadLteCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
+            }
         });
     }
 
-    /** Query all cells belonging to an eNodeB (by eNodeBId). */
     public static void getLteCellsByEnodebId(Context ctx, long enodebId, int pageSize,
                                               CellListCallback<LteCellInfo> cb) {
+        String key  = "lte_enb_" + enodebId;
         String path = "/system/infolte/list?enodebId=" + enodebId
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
-            @Override public void onSuccess(String body) { cb.onSuccess(parseLteList(body)); }
-            @Override public void onError(String message) { cb.onError(message); }
+            @Override public void onSuccess(String body) {
+                List<LteCellInfo> cells = parseLteList(body);
+                CellInfoCache.storeLteCells(ctx, key, cells);
+                cb.onSuccess(cells);
+            }
+            @Override public void onError(String message) {
+                List<LteCellInfo> cached = CellInfoCache.loadLteCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
+            }
         });
     }
 
-    /** Query LTE cells by PCI. Returns up to pageSize matches. */
     public static void getLteCellsByPci(Context ctx, int pci, int pageSize,
                                         CellListCallback<LteCellInfo> cb) {
+        String key  = "lte_pci_" + pci;
         String path = "/system/infolte/list?pci=" + pci
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
             @Override public void onSuccess(String body) {
-                cb.onSuccess(parseLteList(body));
+                List<LteCellInfo> cells = parseLteList(body);
+                CellInfoCache.storeLteCells(ctx, key, cells);
+                cb.onSuccess(cells);
             }
             @Override public void onError(String message) {
-                cb.onError(message);
+                List<LteCellInfo> cached = CellInfoCache.loadLteCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
             }
         });
     }
 
-    /** Query LTE cells by TAC (fetches nearby cells for map overlay). */
     public static void getLteCellsByTac(Context ctx, int tac, int pageSize,
                                         CellListCallback<LteCellInfo> cb) {
+        String key  = "lte_tac_" + tac;
         String path = "/system/infolte/list?tac=" + tac
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
             @Override public void onSuccess(String body) {
-                cb.onSuccess(parseLteList(body));
+                List<LteCellInfo> cells = parseLteList(body);
+                CellInfoCache.storeLteCells(ctx, key, cells);
+                cb.onSuccess(cells);
             }
             @Override public void onError(String message) {
-                cb.onError(message);
+                List<LteCellInfo> cached = CellInfoCache.loadLteCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
             }
         });
     }
 
     // ── NR queries ───────────────────────────────────────────────────────────
 
-    /** Query NR cells by physicalCellId (PCI). */
     public static void getNrCellsByPci(Context ctx, int pci, int pageSize,
                                        CellListCallback<NrCellInfo> cb) {
+        String key  = "nr_pci_" + pci;
         String path = "/system/infonr/list?physicalCellId=" + pci
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
             @Override public void onSuccess(String body) {
-                cb.onSuccess(parseNrList(body));
+                List<NrCellInfo> cells = parseNrList(body);
+                CellInfoCache.storeNrCells(ctx, key, cells);
+                cb.onSuccess(cells);
             }
             @Override public void onError(String message) {
-                cb.onError(message);
+                List<NrCellInfo> cached = CellInfoCache.loadNrCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
             }
         });
     }
 
-    /** Query NR cells by trackingAreaCode (TAC). */
     public static void getNrCellsByTac(Context ctx, int tac, int pageSize,
                                        CellListCallback<NrCellInfo> cb) {
+        String key  = "nr_tac_" + tac;
         String path = "/system/infonr/list?trackingAreaCode=" + tac
                     + "&pageNum=1&pageSize=" + pageSize;
         ApiClient.get(ctx, path, new ApiClient.Callback() {
             @Override public void onSuccess(String body) {
-                cb.onSuccess(parseNrList(body));
+                List<NrCellInfo> cells = parseNrList(body);
+                CellInfoCache.storeNrCells(ctx, key, cells);
+                cb.onSuccess(cells);
             }
             @Override public void onError(String message) {
-                cb.onError(message);
+                List<NrCellInfo> cached = CellInfoCache.loadNrCells(ctx, key);
+                if (cached != null) cb.onSuccess(cached);
+                else                cb.onError(message);
             }
         });
     }

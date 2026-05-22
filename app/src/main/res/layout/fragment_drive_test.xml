@@ -155,8 +155,36 @@
 
     </LinearLayout>
 
+    <!-- ── Serving cell info (bottom-left, above action bar) ───────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_cell_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bar_bottom"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="6dp"
+        android:visibility="gone"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#D8F0F4FF">
+
+        <TextView
+            android:id="@+id/tv_cell_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:fontFamily="monospace"
+            android:textSize="10.5sp"
+            android:lineSpacingExtra="1.5dp"
+            android:textColor="#CC000000" />
+
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- ── Bottom action bar ──────────────────────────────────────── -->
     <LinearLayout
+        android:id="@+id/bar_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
