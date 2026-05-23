@@ -1,96 +1,154 @@
-﻿# CellSentinelApp
+# CellSentinelApp
 
-## 涓枃璇存槑
+CellSentinelApp 是一款面向 **AI 智能体时代** 的 Android 移动网络智能感知、自治路测与现场分析平台。项目以端侧无线网络数据采集为基础，将 LTE、5G NR、Wi-Fi、GPS、设备状态、信令事件日志、地图轨迹与 AI Agent 分析能力连接起来，形成从“现场感知、数据沉淀、智能分析、报告生成”到“优化建议输出”的闭环。
 
-CellSentinelApp 鏄竴娆鹃潰鍚?Android 璁惧鐨勮渹绐濈綉缁滅洃娴嬨€佽矾娴嬪拰鐜板満鎺掗殰宸ュ叿銆傚畠鍙互璇诲彇鎵嬫満褰撳墠鐨勭Щ鍔ㄧ綉缁滅姸鎬侊紝灞曠ず LTE / 5G NR / WCDMA / GSM 绛夌綉缁滅殑鍏抽敭鏃犵嚎鎸囨爣锛屽苟缁撳悎鍦板浘銆丟PS銆乄i-Fi銆佹祴閫熷拰鏃ュ織鑳藉姏锛屽府鍔╃敤鎴疯瀵熺綉缁滆鐩栥€佷俊鍙疯川閲忓拰绉诲姩杩囩▼涓殑缃戠粶鍙樺寲銆?
-### 涓昏鍔熻兘
+它不仅是传统蜂窝网络路测工具，更是面向 AI 网络运维的端侧数据入口。通过实时采集 RSRP、RSRQ、SINR、PCI、TAC、CI、EARFCN/NRARFCN、频段、邻区、TA、CQI、NR CSI 指标、网络制式变化、位置轨迹和测速结果，CellSentinelApp 可以为 AI 智能体提供高质量现场上下文，支撑弱覆盖识别、切换异常研判、网络质量评分、巡检任务辅助、故障归因、优化建议生成和 PDF 分析报告输出。
 
-- 瀹炴椂铚傜獫淇″彿鐩戞祴锛氬睍绀?RSRP銆丷SRQ銆丼INR銆丳CI銆丆I銆乀AC銆丮CC/MNC銆丒ARFCN/NRARFCN銆侀娈电瓑淇℃伅銆?- 澶?SIM 鍗℃敮鎸侊細鏍规嵁璁惧鑳藉姏灞曠ず涓嶅悓 SIM 鍗＄殑缃戠粶涓庝俊鍙锋暟鎹€?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113557_CellSentinelApp.jpg)
-- 璺祴璁板綍锛氬熀浜?GPS 璁板綍绉诲姩杞ㄨ抗鍜屼俊鍙烽噰鏍风偣锛屾敮鎸佹寜 RSRP銆丼INR銆丷SRQ 杩涜棰滆壊鍒嗙骇鏄剧ず銆?- 鍦板浘灞曠ず锛氶泦鎴?osmdroid锛屾敮鎸?OSM銆丒SRI 鍗槦銆丟oogle 鍗槦銆侀珮寰峰崼鏄熺瓑鍥惧眰銆?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113618_CellSentinelApp.jpg)
-- 鏁版嵁瀵煎嚭涓庡洖鏀撅細璺祴鏁版嵁鍙鍑?CSV / KML锛屽苟鏀寔 CSV 璺祴璁板綍鍥炴斁銆?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113641_CellSentinelApp.jpg)
-- Wi-Fi 淇℃伅锛氭煡鐪嬪綋鍓嶈繛鎺ヤ俊鎭€佹壂鎻忓懆杈?Wi-Fi锛屽苟鍙湪璺祴鍦板浘涓婂彔鍔?Wi-Fi 鐐逛綅銆?- 璁惧涓庝綅缃俊鎭細鏌ョ湅 Android 璁惧銆佸畾浣嶅拰缃戠粶鐩稿叧淇℃伅銆?- 淇′护浜嬩欢鏃ュ織锛氬熀浜?Android Telephony API 璁板綍鏈嶅姟鐘舵€併€丷AT 鍙樺寲銆丳CI 鍙樺寲銆佷俊鍙峰己搴﹀彉鍖栫瓑浜嬩欢锛屽苟鏀寔 CSV 瀵煎嚭銆?- 缃戠粶娴嬮€燂細鏀寔鍏綉娴嬮€熷拰鑷畾涔夋湇鍔″櫒娴嬮€熴€?- 鏈嶅姟绔鎺ワ細鏀寔閰嶇疆涓绘湇鍔″櫒鍜屽鐢ㄦ湇鍔″櫒锛屽苟鍙笂浼犱俊鍙峰揩鐓с€佽矾娴嬭褰曠瓑鏁版嵁銆?- 鏀寔鑷畾涔夋櫤鑳戒綋鍒嗘瀽鍔熻兘锛岃兘瀵煎嚭pdf鍒嗘瀽鎶ュ憡銆?![](app/src/main/res/drawable/author/Screenshot_20260523_113928_CellSentinelApp.jpg)
-  
-  ### 鎶€鏈爤
+## 项目亮点
+
+- **AI 智能体分析**：内置 Agent 对话界面，可接入 Hermes / OpenAI-compatible Chat Completions 接口，对路测数据和信令事件进行专业网络优化分析。
+- **AI 报告生成**：支持将智能体分析结论、原始上下文和当前网络信息导出为 PDF 报告，便于巡检归档、问题复盘和工程交付。
+- **蜂窝网络实时感知**：支持 LTE、5G NR、WCDMA、GSM、CDMA 等网络信息采集，展示关键无线指标和小区参数。
+- **多 SIM 支持**：按设备能力识别多 SIM 卡网络状态，分别展示运营商、制式、信号质量和小区信息。
+- **自治路测能力**：基于 GPS 记录移动轨迹和信号采样点，支持 RSRP、SINR、RSRQ 颜色分级渲染。
+- **地图覆盖可视化**：集成 osmdroid，支持 OSM、ESRI 卫星、Google 卫星、高德卫星等图层，展示服务小区、邻区、轨迹和 Wi-Fi 点位。
+- **数据导出与回放**：路测记录支持 CSV / KML 导出，支持 CSV 路测文件回放，便于复盘移动过程中的网络变化。
+- **信令事件日志**：基于 Android Telephony API 记录服务状态、RAT 变化、PCI 变化、信号强度变化等事件，并支持 CSV 导出和 AI 分析。
+- **现场巡检工具箱**：提供 CI/eNB 解析、EARFCN/NRARFCN 频点频段换算、TA 距离估算、方位角计算等工程工具。
+- **网络检测能力**：集成 Wi-Fi 信息、位置状态、设备信息和公网/自定义服务器测速。
+- **服务端对接**：支持主服务器与备用服务器配置，可对接 RuoYi 扩展接口上传信号快照和路测记录。
+
+## 应用截图
+
+| 信号监测 | 路测地图 |
+| --- | --- |
+| ![Signal Monitoring](app/src/main/res/drawable/author/Screenshot_20260523_113557_CellSentinelApp.jpg) | ![Drive Test Map](app/src/main/res/drawable/author/Screenshot_20260523_113618_CellSentinelApp.jpg) |
+
+| 数据回放 | AI 智能分析 |
+| --- | --- |
+| ![Drive Test Playback](app/src/main/res/drawable/author/Screenshot_20260523_113641_CellSentinelApp.jpg) | ![AI Agent Analysis](app/src/main/res/drawable/author/Screenshot_20260523_113928_CellSentinelApp.jpg) |
+
+## 功能模块
+
+### 信号监测
+
+- 实时展示 LTE / 5G NR / WCDMA / GSM / CDMA 网络状态。
+- 展示 RSRP、RSRQ、SINR、PCI、TAC、CI、MCC/MNC、EARFCN、NRARFCN、频段等信息。
+- 支持 LTE TA、CQI、带宽以及 NR SS-RSRP、SS-RSRQ、SS-SINR、CSI-RSRP、CSI-RSRQ、CSI-SINR 等扩展指标。
+- 使用仪表盘和历史曲线展示信号质量变化。
+- 展示邻区信息，辅助现场覆盖和干扰判断。
+
+### 路测与地图
+
+- 基于 GPS 采集路测轨迹和信号采样点。
+- 根据 RSRP、SINR、RSRQ 对轨迹进行颜色分级。
+- 支持地图缩放、定位、测距、图层切换和服务小区/邻区覆盖展示。
+- 支持 Wi-Fi 图层，将扫描到的 Wi-Fi 热点叠加到当前位置。
+- 支持 CSV / KML 导出、服务端上传、记录清除和路测回放。
+- 可将路测数据一键发送给 AI 智能体进行覆盖质量、切换、弱覆盖和优化建议分析。
+
+### AI 智能体
+
+- 支持配置 Hermes / OpenAI-compatible API 地址、Token 和模型。
+- 支持模型列表拉取和连接测试。
+- 支持普通对话和带上下文的网络数据分析。
+- 可从路测模块和信令日志模块直接触发 AI 分析。
+- 支持 Markdown 风格结果展示。
+- 支持将 AI 分析结论导出为 PDF 报告。
+
+### 信令事件日志
+
+- 记录服务状态变化，例如在网、无服务、仅限紧急呼叫、飞行模式。
+- 记录 RAT 变化，例如 LTE、NR、UMTS、HSPA、GSM 等网络类型切换。
+- 基于 PCI 变化推断切换事件。
+- 记录显著 RSRP 变化事件。
+- 支持按事件类型和 SIM 卡过滤展示。
+- 支持 CSV 导出与 AI 智能分析。
+
+### 检测与工具
+
+- Wi-Fi 信息：查看当前连接、周边扫描结果、RSSI、信道和 BSSID。
+- 位置信息：查看 GPS/网络定位结果。
+- 设备信息：查看 Android 设备和系统信息。
+- 测速：支持 Cloudflare 公网测速和自定义服务端测速。
+- 工具箱：支持 CI 解析、EARFCN/NRARFCN 计算、TA 距离估算和方位角计算。
+
+## 技术栈
 
 - Android Java
 - Gradle Kotlin DSL
-- AndroidX AppCompat / Material Components
+- Android Gradle Plugin 9.2.1
+- minSdk 24 / targetSdk 36 / compileSdk 36.1
+- AndroidX AppCompat
+- Material Components
+- ViewPager / RecyclerView
 - OkHttp
 - osmdroid
+- Android PdfDocument
 - JUnit / Espresso
 
-### 鏋勫缓涓庤繍琛?
-1. 浣跨敤 Android Studio 鎵撳紑椤圭洰鏍圭洰褰曘€?2. 绛夊緟 Gradle 鍚屾瀹屾垚銆?3. 杩炴帴 Android 璁惧鎴栧惎鍔ㄦā鎷熷櫒銆?4. 杩愯 `app` 妯″潡銆?
-涔熷彲浠ヤ娇鐢ㄥ懡浠よ鏋勫缓锛?
+## 项目结构
+
+```text
+app/src/main/java/com/asun/cellsentinelapp/
+├── activity/     # MainActivity、LoginActivity
+├── fragment/     # 信号、路测、工具、检测、AI 智能体、信令日志等页面
+├── manager/      # 蜂窝信号、路测、信令日志、缓存管理
+├── model/        # LTE/NR 小区和路测数据模型
+├── network/      # Hermes AI、RuoYi、CellSentinel 服务端接口
+├── util/         # 设置、频点解码、Markdown、PDF 报告工具
+└── view/         # 信号仪表盘、曲线图、小区扇区绘制
+```
+
+## 构建与运行
+
+1. 使用 Android Studio 打开项目根目录。
+2. 等待 Gradle 同步完成。
+3. 连接 Android 真机或启动模拟器。
+4. 运行 `app` 模块。
+
+命令行构建 Debug 包：
+
 ```powershell
 .\gradlew.bat assembleDebug
 ```
 
-### 鏉冮檺璇存槑
-
-搴旂敤浼氳姹備綅缃€佺數璇濈姸鎬併€佺綉缁滆闂€乄i-Fi 鐘舵€佺瓑鏉冮檺銆傝繖浜涙潈闄愮敤浜庤鍙栬渹绐濈綉缁滀俊鎭€佽褰曡矾娴嬭建杩广€佹壂鎻?Wi-Fi銆佽闂湴鍥剧摝鐗囥€佹祴閫熷拰涓婁紶鏁版嵁銆?
-### 鑳藉姏杈圭晫
-
-褰撳墠鈥滀俊浠や簨浠舵棩蹇椻€濆姛鑳借褰曠殑鏄?Android 绯荤粺鍏紑鎺ュ彛鍙幏寰楃殑缃戠粶鐘舵€佷簨浠讹紝渚嬪鏈嶅姟鐘舵€佸彉鍖栥€丩TE/NR/UMTS/GSM 绛夌綉缁滅被鍨嬪彉鍖栥€佸熀浜?PCI 鍙樺寲鎺ㄦ柇鐨勫垏鎹簨浠讹紝浠ュ強 RSRP 鍙樺寲浜嬩欢銆傚畠涓嶆槸 LTE/NR 鍗忚鏍堜俊浠よВ鏋愬櫒锛屼笉鑳借В鏋愬畬鏁寸殑 RRC銆丯AS銆丮AC銆丷LC銆丳DCP 鎴栧熀甯﹀師濮嬩俊浠ゆ秷鎭€?
-濡傞渶瀹屾暣 LTE/NR 淇′护鍒嗘瀽锛岄€氬父闇€瑕佸伐绋嬫満銆乺oot/鍘傚晢鏉冮檺銆丵ualcomm DIAG/QXDM/QCAT銆乵odem log銆丷adio HAL/vendor 绉佹湁鎺ュ彛锛屾垨鍩虹珯渚?娴嬭瘯浠〃鏃ュ織绛夋洿搴曞眰鐨勬暟鎹簮銆?
-## English
-
-CellSentinelApp is an Android field tool for cellular network monitoring, drive testing, and on-site troubleshooting. It reads the current mobile network state from the device, displays key radio metrics for LTE, 5G NR, WCDMA, and GSM, and combines maps, GPS, Wi-Fi, speed tests, and logs to help users understand coverage, signal quality, and network changes while moving.
-
-### Features
-
-- Real-time cellular signal monitoring: RSRP, RSRQ, SINR, PCI, CI, TAC, MCC/MNC, EARFCN/NRARFCN, band information, and more.
-- Multi-SIM support: displays signal and network data for supported SIM cards.
-- Drive testing: records GPS tracks and signal samples, with color grading by RSRP, SINR, or RSRQ.
-- Map view: powered by osmdroid, with OSM, ESRI satellite, Google satellite, and Amap satellite layers.
-- Export and playback: export drive-test records to CSV / KML and replay CSV records on the map.
-- Wi-Fi tools: view current Wi-Fi details, scan nearby access points, and overlay Wi-Fi markers on the drive-test map.
-- Device and location panels: inspect Android device, location, and network information.
-- Signaling event log: records service state changes, RAT changes, PCI-change based handover hints, and signal-strength changes through Android Telephony APIs, with CSV export.
-- Speed test: supports public Cloudflare speed testing and custom server testing.
-- Server integration: configurable primary and backup server URLs for uploading signal snapshots and drive-test records.
-
-### Tech Stack
-
-- Android Java
-- Gradle Kotlin DSL
-- AndroidX AppCompat / Material Components
-- OkHttp
-- osmdroid
-- JUnit / Espresso
-
-### Build And Run
-
-1. Open the project root in Android Studio.
-2. Wait for Gradle sync to finish.
-3. Connect an Android device or start an emulator.
-4. Run the `app` module.
-
-Command-line debug build:
+命令行构建 Release 包：
 
 ```powershell
-.\gradlew.bat assembleDebug
+.\gradlew.bat assembleRelease
 ```
 
-### Permissions
+## 权限说明
 
-The app requests location, phone state, internet, and Wi-Fi permissions. These permissions are used to read cellular network data, record drive-test tracks, scan Wi-Fi, access map tiles, run speed tests, and upload data.
+应用会请求以下权限：
 
-### Capability Boundary
+- 位置权限：用于读取蜂窝小区信息、记录 GPS 路测轨迹、展示地图定位。
+- 电话状态权限：用于读取 SIM、网络制式、小区身份和信号强度。
+- 网络权限：用于地图瓦片、测速、AI 接口调用和服务端数据上传。
+- Wi-Fi 权限：用于读取当前 Wi-Fi 信息和扫描周边热点。
+- 外部存储写入权限：用于旧版本 Android 上导出 CSV/KML/PDF 文件。
 
-The current signaling event log records network-state events exposed by Android public APIs, such as service state changes, LTE/NR/UMTS/GSM network type changes, handover hints inferred from PCI changes, and RSRP changes. It is not a full LTE/NR protocol signaling decoder and does not parse complete RRC, NAS, MAC, RLC, PDCP, or raw modem signaling messages.
+## 能力边界
 
-Full LTE/NR signaling analysis usually requires lower-level data sources such as engineering devices, root/vendor privileges, Qualcomm DIAG/QXDM/QCAT, modem logs, Radio HAL/vendor private interfaces, or base-station/test-equipment logs.
+当前“信令事件日志”记录的是 Android 系统公开接口可获得的网络状态事件，例如服务状态变化、LTE/NR/UMTS/GSM 等网络类型变化、基于 PCI 变化推断的切换事件，以及 RSRP 变化事件。
 
-## 鑱旂郴浣滆€?/ Contact
+它不是完整的 LTE/NR 协议栈信令解析器，不能解析完整 RRC、NAS、MAC、RLC、PDCP 或基带原始信令消息。如需完整 LTE/NR 信令分析，通常需要工程机、root/厂商权限、Qualcomm DIAG/QXDM/QCAT、modem log、Radio HAL/vendor 私有接口，或基站侧/测试仪表日志等更底层的数据源。
 
-寰俊浜岀淮鐮?/ WeChat QR Code:
+## English Overview
+
+CellSentinelApp is an Android-based intelligent mobile network sensing, autonomous drive-test, and AI Agent analysis platform. It combines LTE, 5G NR, Wi-Fi, GPS, device telemetry, signaling event logs, map visualization, server upload, and AI-powered reporting into a complete field workflow.
+
+The app collects radio metrics such as RSRP, RSRQ, SINR, PCI, TAC, CI, EARFCN/NRARFCN, bands, neighbor cells, TA, CQI, NR CSI metrics, RAT changes, location tracks, and speed-test results. These structured field data can be sent to an AI Agent for weak-coverage detection, handover analysis, network quality scoring, issue diagnosis, optimization suggestions, and PDF report generation.
+
+## Contact
+
+WeChat QR Code:
 
 ![WeChat QR Code](app/src/main/res/drawable/author/authorwechat.png)
 
-## 寮€婧愬０鏄?/ Open Source Notice
+## Open Source Notice
 
-鏈」鐩噰鐢?Apache License 2.0 寮€婧愩€備换浣曚汉閮藉彲浠ヨ嚜鐢变娇鐢ㄣ€佸鍒躲€佷慨鏀广€佸垎鍙戝拰鐢ㄤ簬瀛︿範銆佺爺绌舵垨鍟嗕笟鍦烘櫙锛屼絾璇烽伒瀹堜粨搴撲腑鐨?`LICENSE` 鏂囦欢銆?
+本项目采用 Apache License 2.0 开源。任何人都可以自由使用、复制、修改、分发，并可用于学习、研究或商业场景。使用时请遵守仓库中的 `LICENSE` 文件。
+
 This project is open source under the Apache License 2.0. Anyone may use, copy, modify, distribute, and apply it for learning, research, or commercial purposes, subject to the `LICENSE` file in this repository.
-
-
