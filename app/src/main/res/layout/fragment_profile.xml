@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -16,10 +18,7 @@
             android:id="@+id/card_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,7 +31,8 @@
                     android:layout_height="wrap_content"
                     android:text="用户信息"
                     android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary" />
 
                 <TextView
                     android:id="@+id/tv_nick_name"
@@ -48,6 +48,7 @@
                     android:layout_height="wrap_content"
                     android:text="未登录"
                     android:textSize="13sp"
+                    android:textColor="@color/textColorSecondary"
                     android:paddingTop="4dp" />
 
             </LinearLayout>
@@ -57,10 +58,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -73,7 +71,8 @@
                     android:layout_height="wrap_content"
                     android:text="服务器设置"
                     android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary" />
 
                 <EditText
                     android:id="@+id/et_server_url"
@@ -108,10 +107,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -124,7 +120,8 @@
                     android:layout_height="wrap_content"
                     android:text="数据上报"
                     android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary" />
 
                 <Button
                     android:id="@+id/btn_upload_signal"
@@ -141,10 +138,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -157,7 +151,8 @@
                     android:layout_height="wrap_content"
                     android:text="Hermes AI 设置"
                     android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary" />
 
                 <EditText
                     android:id="@+id/et_hermes_url"

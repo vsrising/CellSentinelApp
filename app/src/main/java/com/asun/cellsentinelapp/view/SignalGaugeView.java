@@ -11,17 +11,23 @@ import android.view.View;
  * Circular arc gauge displaying a signal metric value.
  * Arc sweeps 270° from lower-left (bad) to lower-right (good).
  * Fill color reflects signal quality level.
+ * Dark instrument-dial face so white text stays readable on any background.
  */
 public class SignalGaugeView extends View {
 
-    private static final float START_ANGLE = 135f; // 7:30 position (lower-left)
-    private static final float SWEEP_ANGLE = 270f; // ends at 1:30 (lower-right) via top
+    private static final float START_ANGLE = 135f;
+    private static final float SWEEP_ANGLE = 270f;
 
-    private final Paint mBgPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mArcPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mValPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // Instrument dial colours
+    private static final int COLOR_DISC  = 0xFF182B45; // dark navy dial face
+    private static final int COLOR_TRACK = 0xFF2D4065; // slightly lighter navy arc track
+
+    private final Paint mDiscPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mBgPaint   = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mArcPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mValPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mUnitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mLblPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mLblPaint  = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private String mLabel  = "RSRP";
     private String mUnit   = "dBm";
@@ -38,15 +44,13 @@ public class SignalGaugeView extends View {
         super(ctx, attrs);
     }
 
-    /** Configure the gauge before first use. */
     public void configure(String label, String unit, int minVal, int maxVal) {
-        mLabel = label;
-        mUnit  = unit;
+        mLabel  = label;
+        mUnit   = unit;
         mMinVal = minVal;
         mMaxVal = maxVal;
     }
 
-    /** Update displayed value and fill color. Pass Integer.MAX_VALUE for N/A. */
     public void setValue(int value, int color) {
         mValue    = value;
         mArcColor = color;
@@ -55,26 +59,31 @@ public class SignalGaugeView extends View {
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
-        // Force square: height equals the resolved width
         int w = MeasureSpec.getSize(widthSpec);
         setMeasuredDimension(w, w);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        float w  = getWidth();
+        float w      = getWidth();
         float stroke = w * 0.10f;
         float margin = stroke / 2 + w * 0.04f;
-        RectF oval = new RectF(margin, margin, w - margin, w - margin);
+        RectF oval   = new RectF(margin, margin, w - margin, w - margin);
+        float cx     = oval.centerX();
+        float cy     = oval.centerY();
 
-        // Background arc
+        // ── 0. Dark instrument-dial disc ──────────────────────────────────
+        mDiscPaint.setColor(COLOR_DISC);
+        canvas.drawCircle(cx, cy, w / 2f - 2f, mDiscPaint);
+
+        // ── 1. Background arc track ───────────────────────────────────────
         mBgPaint.setStyle(Paint.Style.STROKE);
         mBgPaint.setStrokeWidth(stroke);
-        mBgPaint.setColor(0xFFDDDDDD);
+        mBgPaint.setColor(COLOR_TRACK);
         mBgPaint.setStrokeCap(Paint.Cap.ROUND);
         canvas.drawArc(oval, START_ANGLE, SWEEP_ANGLE, false, mBgPaint);
 
-        // Value arc (colored fill)
+        // ── 2. Colored value arc ──────────────────────────────────────────
         if (mValue != Integer.MAX_VALUE) {
             float frac = (float)(mValue - mMinVal) / (mMaxVal - mMinVal);
             frac = Math.max(0.03f, Math.min(1f, frac));
@@ -85,28 +94,25 @@ public class SignalGaugeView extends View {
             canvas.drawArc(oval, START_ANGLE, SWEEP_ANGLE * frac, false, mArcPaint);
         }
 
-        float cx = oval.centerX();
-        float cy = oval.centerY();
-
-        // Numeric value
+        // ── 3. Numeric value (white on dark dial) ─────────────────────────
         String valStr = mValue == Integer.MAX_VALUE ? "N/A" : String.valueOf(mValue);
         mValPaint.setTextAlign(Paint.Align.CENTER);
         mValPaint.setTextSize(w * 0.22f);
         mValPaint.setFakeBoldText(true);
-        mValPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFFAAAAAA : 0xFFFFFFFF);
+        mValPaint.setColor(mValue == Integer.MAX_VALUE ? 0x88FFFFFF : 0xFFFFFFFF);
         canvas.drawText(valStr, cx, cy + w * 0.08f, mValPaint);
 
-        // Unit text below value
+        // ── 4. Unit text ──────────────────────────────────────────────────
         mUnitPaint.setTextAlign(Paint.Align.CENTER);
         mUnitPaint.setTextSize(w * 0.10f);
-        mUnitPaint.setColor(0xFFFFFFFF);
+        mUnitPaint.setColor(0xAAFFFFFF);
         canvas.drawText(mUnit, cx, cy + w * 0.22f, mUnitPaint);
 
-        // Label at bottom (colored by quality, or grey if N/A)
+        // ── 5. Label at bottom ────────────────────────────────────────────
         mLblPaint.setTextAlign(Paint.Align.CENTER);
         mLblPaint.setTextSize(w * 0.13f);
         mLblPaint.setFakeBoldText(true);
-        mLblPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFFFFFFFF : mArcColor);
+        mLblPaint.setColor(mValue == Integer.MAX_VALUE ? 0x66FFFFFF : mArcColor);
         canvas.drawText(mLabel, cx, w - w * 0.03f, mLblPaint);
     }
 }

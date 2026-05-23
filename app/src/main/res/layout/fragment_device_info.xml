@@ -17,7 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,14 +30,14 @@
                     android:text="电池信息"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="10dp" />
                 <TextView
                     android:id="@+id/tv_battery_info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textColorPrimary"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.6"
                     android:text="正在读取..." />
@@ -49,7 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,14 +63,14 @@
                     android:text="硬件信息"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="10dp" />
                 <TextView
                     android:id="@+id/tv_hardware_info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textColorPrimary"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.6"
                     android:text="—" />
@@ -81,7 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -93,14 +96,14 @@
                     android:text="系统信息"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="10dp" />
                 <TextView
                     android:id="@+id/tv_system_info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textColorPrimary"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.6"
                     android:text="—" />

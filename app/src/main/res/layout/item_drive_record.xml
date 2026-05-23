@@ -27,14 +27,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:textColor="@color/textColorPrimary" />
 
             <TextView
                 android:id="@+id/tv_coords"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:textColor="@color/textColorSecondary" />
 
         </LinearLayout>
 
@@ -44,7 +46,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:textSize="11sp"
-            android:gravity="end" />
+            android:gravity="end"
+            android:textColor="@color/colorPrimary" />
 
     </LinearLayout>
 

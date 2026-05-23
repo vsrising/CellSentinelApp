@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -29,7 +30,7 @@
                 android:layout_weight="1"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#DE000000"
+                android:textColor="@color/textColorPrimary"
                 android:text="—" />
 
             <TextView
@@ -39,8 +40,8 @@
                 android:text="—"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="#FF1565C0"
+                android:textColor="@color/white"
+                android:background="@color/colorPrimary"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp" />
 
@@ -84,7 +85,7 @@
             android:layout_marginTop="6dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FAFAFA">
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -140,7 +141,7 @@
                     <TextView android:id="@+id/tv_band_val"
                         style="@style/CellValue"
                         android:layout_weight="1"
-                        android:textColor="#FF1565C0" />
+                        android:textColor="@color/colorPrimary" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -154,7 +155,7 @@
             android:layout_marginTop="6dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FAFAFA">
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -167,7 +168,7 @@
                     android:layout_height="wrap_content"
                     android:text="信号历史 (120s)"
                     android:textSize="11sp"
-                    android:textColor="#99000000"
+                    android:textColor="@color/textColorSecondary"
                     android:layout_marginBottom="4dp" />
 
                 <com.asun.cellsentinelapp.view.SignalChartView
@@ -186,7 +187,7 @@
             android:layout_marginTop="6dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FAFAFA">
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -207,7 +208,7 @@
                         android:text="网络延迟"
                         android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#DE000000" />
+                        android:textColor="@color/textColorPrimary" />
 
                     <Button
                         android:id="@+id/btn_ping"
@@ -228,7 +229,7 @@
                     android:layout_marginTop="4dp"
                     android:textSize="11sp"
                     android:fontFamily="monospace"
-                    android:textColor="#99000000"
+                    android:textColor="@color/textColorSecondary"
                     android:text="点击测试按钮检测服务器延迟" />
 
             </LinearLayout>
@@ -242,7 +243,7 @@
             android:layout_marginTop="6dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FAFAFA">
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -257,7 +258,7 @@
                     android:text="邻区 (0)"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="#DE000000"
+                    android:textColor="@color/textColorPrimary"
                     android:layout_marginBottom="4dp" />
 
                 <TextView
@@ -267,7 +268,7 @@
                     android:textSize="10.5sp"
                     android:fontFamily="monospace"
                     android:lineSpacingExtra="2dp"
-                    android:textColor="#DE000000"
+                    android:textColor="@color/textColorPrimary"
                     android:text="—" />
 
             </LinearLayout>

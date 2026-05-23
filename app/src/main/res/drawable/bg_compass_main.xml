@@ -2,14 +2,14 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape android:shape="oval">
-            <solid android:color="#FF018786"/>
-            <stroke android:width="2dp" android:color="#CCFFFFFF"/>
+            <solid android:color="@color/colorPrimaryDark"/>
+            <stroke android:width="2dp" android:color="@color/colorWhite80"/>
         </shape>
     </item>
     <item>
         <shape android:shape="oval">
-            <solid android:color="#FF03DAC5"/>
-            <stroke android:width="2dp" android:color="#99FFFFFF"/>
+            <solid android:color="@color/colorAccent"/>
+            <stroke android:width="2dp" android:color="@color/colorWhite60"/>
         </shape>
     </item>
 </selector>

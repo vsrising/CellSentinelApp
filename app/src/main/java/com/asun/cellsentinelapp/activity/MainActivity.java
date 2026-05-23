@@ -13,6 +13,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import androidx.fragment.app.FragmentManager;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -105,6 +107,14 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottom_nav);
         nav.setOnItemSelectedListener(item -> {
+            // Clear any sub-fragments (AgentFragment, SignalingLogFragment, …) that were
+            // pushed onto the back stack via replace()+addToBackStack() — restores all
+            // main fragments so the hide/show below works correctly.
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStackImmediate(
+                        null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+
             Fragment target;
             int id = item.getItemId();
             if      (id == R.id.nav_signal)    target = mSignalFragment;

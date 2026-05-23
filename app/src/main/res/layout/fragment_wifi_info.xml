@@ -17,7 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +37,7 @@
                         android:text="已连接 WiFi"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/colorPrimary" />
                     <Button
                         android:id="@+id/btn_wifi_refresh"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -50,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textColorPrimary"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.5"
                     android:text="正在获取..." />
@@ -63,7 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/colorSurfaceFaint">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,7 +84,7 @@
                         android:text="附近 WiFi"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/colorPrimary" />
                     <Button
                         android:id="@+id/btn_wifi_scan"
                         android:layout_width="wrap_content"
@@ -95,21 +97,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="11sp"
-                    android:textColor="#CC000000"
+                    android:textColor="@color/textColorMedium"
                     android:fontFamily="monospace"
                     android:layout_marginBottom="4dp"
                     android:text="SSID                   RSSI   信道   频段  安全" />
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#1A000000"
+                    android:background="@color/colorDivider"
                     android:layout_marginBottom="4dp" />
                 <TextView
                     android:id="@+id/tv_wifi_scan_results"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textColorPrimary"
                     android:fontFamily="monospace"
                     android:lineSpacingMultiplier="1.5"
                     android:text="点击扫描按钮..." />

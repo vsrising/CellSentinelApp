@@ -24,7 +24,7 @@
         android:layout_marginTop="8dp"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#F2FFFFFF">
+        app:cardBackgroundColor="@color/colorMapOverlay">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
                 android:text="等待 GPS..."
                 android:fontFamily="monospace"
                 android:textSize="11sp"
-                android:textColor="#DE000000" />
+                android:textColor="@color/textColorPrimary" />
 
             <TextView
                 android:id="@+id/tv_record_count"
@@ -49,7 +49,7 @@
                 android:text="已录制 0 条"
                 android:textStyle="bold"
                 android:textSize="12sp"
-                android:textColor="#DE000000" />
+                android:textColor="@color/textColorPrimary" />
 
             <TextView
                 android:id="@+id/tv_sim_select"
@@ -58,9 +58,9 @@
                 android:layout_marginTop="3dp"
                 android:text="测试: 卡2"
                 android:textSize="11sp"
-                android:textColor="#FF1565C0"
+                android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
-                android:background="#1A1565C0"
+                android:background="@color/colorPrimaryTintBg"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
                 android:clickable="true"
@@ -73,9 +73,9 @@
                 android:layout_marginTop="3dp"
                 android:text="RSRP"
                 android:textSize="11sp"
-                android:textColor="#FF6A1B9A"
+                android:textColor="@color/colorNr"
                 android:textStyle="bold"
-                android:background="#1A6A1B9A"
+                android:background="@color/colorNrBg"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
                 android:clickable="true"
@@ -89,7 +89,7 @@
                 android:text="— km/h"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#DE000000"
+                android:textColor="@color/textColorPrimary"
                 android:visibility="gone" />
 
             <TextView
@@ -100,7 +100,7 @@
                 android:text="RSRP: — dBm"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#DE000000"
+                android:textColor="@color/textColorPrimary"
                 android:visibility="gone" />
 
             <TextView
@@ -111,7 +111,7 @@
                 android:text="min/avg/max"
                 android:textSize="10sp"
                 android:fontFamily="monospace"
-                android:textColor="#CC000000"
+                android:textColor="@color/textColorMedium"
                 android:visibility="gone" />
 
         </LinearLayout>
@@ -127,7 +127,7 @@
         android:visibility="gone"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#F2F5F5">
+        app:cardBackgroundColor="@color/colorCardRecord">
 
         <TextView
             android:id="@+id/tv_measure_result"
@@ -136,7 +136,7 @@
             android:padding="12dp"
             android:textStyle="bold"
             android:textSize="15sp"
-            android:textColor="#DE000000" />
+            android:textColor="@color/textColorPrimary" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -151,7 +151,7 @@
         android:layout_marginEnd="8dp"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#E6000000">
+        app:cardBackgroundColor="@color/colorHudBg">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -167,7 +167,7 @@
                 android:text="RSRP  —"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#FFFFFFFF"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
 
             <TextView
@@ -177,7 +177,7 @@
                 android:text="SINR  —"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#FFFFFFFF" />
+                android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/tv_overlay_rsrq"
@@ -186,7 +186,7 @@
                 android:text="RSRQ  —"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#FFFFFFFF" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -206,7 +206,7 @@
             android:layout_height="40dp"
             android:text="+"
             android:textSize="18sp"
-            android:textColor="#DE000000"
+            android:textColor="@color/textColorPrimary"
             android:textAllCaps="false"
             android:padding="0dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -218,7 +218,7 @@
             android:layout_height="40dp"
             android:text="−"
             android:textSize="18sp"
-            android:textColor="#DE000000"
+            android:textColor="@color/textColorPrimary"
             android:textAllCaps="false"
             android:padding="0dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -230,7 +230,7 @@
             android:layout_height="40dp"
             android:text="⊙"
             android:textSize="16sp"
-            android:textColor="#DE000000"
+            android:textColor="@color/textColorPrimary"
             android:textAllCaps="false"
             android:padding="0dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
@@ -249,7 +249,7 @@
         android:visibility="gone"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#F2F4F8FF">
+        app:cardBackgroundColor="@color/colorCardDriveInfo">
 
         <TextView
             android:id="@+id/tv_cell_info"
@@ -260,7 +260,7 @@
             android:fontFamily="monospace"
             android:textSize="10.5sp"
             android:lineSpacingExtra="1.5dp"
-            android:textColor="#DE000000" />
+            android:textColor="@color/textColorPrimary" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -275,7 +275,7 @@
         android:visibility="gone"
         app:cardCornerRadius="8dp"
         app:cardElevation="6dp"
-        app:cardBackgroundColor="#F2FFFFFF">
+        app:cardBackgroundColor="@color/colorMapOverlay">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -295,7 +295,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="11sp"
-                    android:textColor="#DE000000"
+                    android:textColor="@color/textColorPrimary"
                     android:singleLine="true"
                     android:ellipsize="start"
                     android:text="未选择文件" />
@@ -307,7 +307,7 @@
                     android:layout_height="36dp"
                     android:text="✕"
                     android:textSize="14sp"
-                    android:textColor="#99000000"
+                    android:textColor="@color/textColorSecondary"
                     android:padding="0dp" />
 
             </LinearLayout>
@@ -323,7 +323,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="10sp"
-                android:textColor="#99000000"
+                android:textColor="@color/textColorSecondary"
                 android:gravity="center"
                 android:text="0 / 0 条" />
 
@@ -336,7 +336,7 @@
                 android:text="RSRP — dBm  SINR —  RSRQ —  PCI —"
                 android:textSize="11sp"
                 android:fontFamily="monospace"
-                android:textColor="#FF1565C0"
+                android:textColor="@color/colorPrimary"
                 android:textStyle="bold"
                 android:gravity="center" />
 
@@ -355,7 +355,7 @@
                     android:text="⏮"
                     android:textSize="14sp"
                     android:padding="0dp"
-                    android:textColor="#DE000000"
+                    android:textColor="@color/textColorPrimary"
                     android:layout_marginEnd="8dp" />
 
                 <Button
@@ -375,7 +375,7 @@
                     android:text="1×"
                     android:textAllCaps="false"
                     android:textSize="13sp"
-                    android:textColor="#DE000000" />
+                    android:textColor="@color/textColorPrimary" />
 
             </LinearLayout>
 
@@ -398,7 +398,7 @@
         android:visibility="gone"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#E8FFFFFF">
+        app:cardBackgroundColor="@color/colorMapOverlayChart">
 
         <com.asun.cellsentinelapp.view.SignalChartView
             android:id="@+id/mini_chart"
@@ -436,7 +436,7 @@
         android:layout_marginBottom="20dp"
         android:text="开始\n路测"
         android:textAllCaps="false"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/white"
         android:textSize="10sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
@@ -455,7 +455,7 @@
         android:layout_marginBottom="22dp"
         android:text="测距"
         android:textAllCaps="false"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/white"
         android:textSize="12sp"
         android:gravity="center"
         android:background="@drawable/bg_compass_item"
@@ -473,7 +473,7 @@
         android:layout_marginBottom="22dp"
         android:text="刷新\n基站"
         android:textAllCaps="false"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/white"
         android:textSize="10sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
@@ -492,7 +492,7 @@
         android:layout_marginBottom="22dp"
         android:text="地图\n图层"
         android:textAllCaps="false"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/white"
         android:textSize="10sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
@@ -511,7 +511,7 @@
         android:layout_marginBottom="22dp"
         android:text="更多"
         android:textAllCaps="false"
-        android:textColor="#FFFFFFFF"
+        android:textColor="@color/white"
         android:textSize="12sp"
         android:gravity="center"
         android:background="@drawable/bg_compass_item"
@@ -529,7 +529,7 @@
         android:layout_marginBottom="16dp"
         android:text="☰"
         android:textAllCaps="false"
-        android:textColor="#FF000000"
+        android:textColor="@color/textColorBlack"
         android:textSize="22sp"
         android:gravity="center"
         android:background="@drawable/bg_compass_main"

@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:text="接口地址"
         android:textSize="12sp"
-        android:textColor="#FF757575" />
+        android:textColor="@color/textColorHint" />
 
     <EditText
         android:id="@+id/et_hermes_url"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:text="访问令牌 (Bearer Token)"
         android:textSize="12sp"
-        android:textColor="#FF757575" />
+        android:textColor="@color/textColorHint" />
 
     <EditText
         android:id="@+id/et_hermes_token"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:text="模型名称（留空自动获取）"
         android:textSize="12sp"
-        android:textColor="#FF757575" />
+        android:textColor="@color/textColorHint" />
 
     <EditText
         android:id="@+id/et_hermes_model"

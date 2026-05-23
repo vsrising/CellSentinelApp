@@ -1,12 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="text_primary">#DE000000</color>
-    <color name="background">#FFF5F5F5</color>
+
+    <!-- ══ Primary brand palette ══════════════════════════════════════════ -->
+    <!--   Deep navy-blue: authority, precision, professional telecom look  -->
+    <color name="colorPrimary">#1565C0</color>           <!-- Blue 800  – main brand blue -->
+    <color name="colorPrimaryDark">#0D47A1</color>       <!-- Blue 900  – toolbar / status bar -->
+    <color name="colorPrimaryLight">#1976D2</color>      <!-- Blue 700  – buttons / hover states -->
+    <color name="colorPrimaryTintBg">#1A1565C0</color>   <!-- 10 % blue – LTE badge background -->
+
+    <!-- ══ Accent / Secondary ═════════════════════════════════════════════ -->
+    <!--   Electric cyan: tech, data-flow, live indicators                  -->
+    <color name="colorAccent">#00ACC1</color>            <!-- Cyan 600  – main accent -->
+    <color name="colorAccentDark">#007C91</color>        <!-- Cyan 800  – accent pressed state -->
+
+    <!-- ══ NR / 5G indicator ══════════════════════════════════════════════ -->
+    <color name="colorNr">#6A1B9A</color>                <!-- Purple 900 – NR / 5G badge -->
+    <color name="colorNrBg">#1A6A1B9A</color>            <!-- 10 % purple – NR badge bg -->
+
+    <!-- ══ Background / Surface ═══════════════════════════════════════════ -->
+    <color name="background">#F0F4FF</color>             <!-- Indigo 50 – cool blue-tinted screen bg -->
+    <color name="colorSurface">#FFFFFF</color>           <!-- Pure white surface / card -->
+    <color name="colorSurfaceFaint">#FAFAFA</color>      <!-- Near-white secondary card surface -->
+    <color name="colorCardRecord">#F2F5F5</color>        <!-- Drive-test record list card -->
+    <color name="colorCardAI">#E3F2FD</color>            <!-- AI / Agent context card (Light Blue 50) -->
+    <color name="colorCardDriveInfo">#F2F4F8FF</color>   <!-- Drive info card (95 % opaque pale blue) -->
+    <color name="colorMapOverlay">#F2FFFFFF</color>      <!-- Near-white card overlaid on map -->
+    <color name="colorMapOverlayChart">#E8FFFFFF</color> <!-- Chart card overlaid on map -->
+    <color name="colorHudBg">#E6001028</color>           <!-- Dark navy HUD overlay (drive test) -->
+    <color name="colorDiscBg">#CC001028</color>          <!-- 80 % navy – compass disc background -->
+
+    <!-- ══ Text ═══════════════════════════════════════════════════════════ -->
+    <color name="textColorPrimary">#DE000000</color>     <!-- 87 % black – primary body text -->
+    <color name="textColorMedium">#CC000000</color>      <!-- 80 % black – medium emphasis -->
+    <color name="textColorSecondary">#99000000</color>   <!-- 60 % black – secondary / caption -->
+    <color name="textColorHint">#FF757575</color>        <!-- Gray 600   – input placeholders -->
+    <color name="textColorBlack">#FF000000</color>       <!-- Full black  – compass labels -->
+
+    <!-- ══ On-dark / overlays ══════════════════════════════════════════════ -->
+    <color name="white">#FFFFFFFF</color>                <!-- White text on dark surfaces -->
+    <color name="colorWhite80">#CCFFFFFF</color>         <!-- 80 % white – stroke on dark bg -->
+    <color name="colorWhite60">#99FFFFFF</color>         <!-- 60 % white – stroke on dark bg -->
+    <color name="colorWhite20">#33FFFFFF</color>      <!-- 20 % white – active nav indicator -->
+
+    <!-- ══ Divider ════════════════════════════════════════════════════════ -->
+    <color name="colorDivider">#1A000000</color>         <!-- 10 % black – hairline separator -->
+
+    <!-- ══ Legacy aliases: referenced by themes.xml ═══════════════════════ -->
+    <color name="purple_200">#01447A</color>           <!-- Blue 200: dark-mode primary tint -->
+    <color name="purple_500">#FF1565C0</color>           <!-- = colorPrimary -->
+    <color name="purple_700">#FF0D47A1</color>           <!-- = colorPrimaryDark -->
+    <color name="teal_200">#FF80DEEA</color>             <!-- Cyan 200: dark-mode secondary -->
+    <color name="teal_700">#FF00ACC1</color>             <!-- = colorAccent -->
+    <color name="black">#CECBCB</color>                  <!-- User-set value -->
+    <color name="text_primary">#DEB4ADAD</color>         <!-- = textColorPrimary -->
+
 </resources>

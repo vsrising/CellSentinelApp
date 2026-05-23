@@ -17,8 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardElevation="3dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#FFF3E0">
+            app:cardBackgroundColor="@color/colorCardAI">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,13 +35,13 @@
                         android:text="智能体"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#E65100" />
+                        android:textColor="@color/colorPrimaryDark" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AI 知识问答 · 网络优化建议 · 数据分析"
                         android:textSize="12sp"
-                        android:textColor="#FF6F00"
+                        android:textColor="@color/colorPrimary"
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
                 <com.google.android.material.button.MaterialButton
@@ -51,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:text="打开 ›"
                     android:textAllCaps="false"
-                    app:backgroundTint="#E65100" />
+                    app:backgroundTint="@color/colorPrimaryLight" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -59,9 +58,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,13 +76,13 @@
                         android:text="LTE/NR 信令事件日志"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/colorPrimary" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="切换/RAT变更/服务状态事件记录"
                         android:textSize="12sp"
-                        android:textColor="#99000000"
+                        android:textColor="@color/textColorSecondary"
                         android:layout_marginTop="2dp" />
                 </LinearLayout>
                 <com.google.android.material.button.MaterialButton
@@ -102,9 +99,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,13 +111,13 @@
                     android:text="CI 解析器"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="12dp" />
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="输入 CI (十进制)"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    style="@style/AppTextInput"
                     android:layout_marginBottom="8dp">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_ci_input"
@@ -142,7 +137,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="@color/text_primary"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
@@ -153,9 +147,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -167,7 +159,7 @@
                     android:text="EARFCN / NRARFCN 计算器"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="12dp" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -179,7 +171,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="EARFCN / NRARFCN"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        style="@style/AppTextInput"
                         android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_earfcn_input"
@@ -200,7 +192,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="@color/text_primary"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
@@ -211,9 +202,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -225,7 +214,7 @@
                     android:text="TA 距离换算"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="12dp" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -237,7 +226,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="TA 值"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        style="@style/AppTextInput"
                         android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_ta_value"
@@ -264,36 +253,31 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="LTE / NR μ0"
-                        android:checked="true"
-                        android:textColor="@color/text_primary" />
+                        android:checked="true" />
                     <RadioButton
                         android:id="@+id/rb_ta_nr1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="NR μ1"
-                        android:layout_marginStart="12dp"
-                        android:textColor="@color/text_primary" />
+                        android:layout_marginStart="12dp" />
                     <RadioButton
                         android:id="@+id/rb_ta_nr2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="NR μ2"
-                        android:layout_marginStart="12dp"
-                        android:textColor="@color/text_primary" />
+                        android:layout_marginStart="12dp" />
                     <RadioButton
                         android:id="@+id/rb_ta_nr3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="NR μ3"
-                        android:layout_marginStart="12dp"
-                        android:textColor="@color/text_primary" />
+                        android:layout_marginStart="12dp" />
                 </RadioGroup>
                 <TextView
                     android:id="@+id/tv_ta_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="@color/text_primary"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
@@ -304,9 +288,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="12dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -318,7 +300,7 @@
                     android:text="方位角 &amp; 距离计算器"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/colorPrimary"
                     android:layout_marginBottom="12dp" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -330,7 +312,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="起点纬度"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        style="@style/AppTextInput"
                         android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_lat1"
@@ -344,7 +326,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="起点经度"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+                        style="@style/AppTextInput">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_lon1"
                             android:layout_width="match_parent"
@@ -363,7 +345,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="终点纬度"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                        style="@style/AppTextInput"
                         android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_lat2"
@@ -377,7 +359,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="终点经度"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+                        style="@style/AppTextInput">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_lon2"
                             android:layout_width="match_parent"
@@ -397,7 +379,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:textColor="@color/text_primary"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
