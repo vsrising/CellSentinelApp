@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- WiFi outer arc -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M1,9L3,11c2.45,-2.45 5.85,-3.96 9.6,-3.96 3.75,0 7.14,1.51 9.6,3.96L24.2,9C21.18,5.98 17,4 12.5,4S3.82,5.98 1,9z"/>
+    <!-- WiFi middle arc -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M5.1,12.9L7.1,14.9c1.38,-1.38 3.28,-2.22 5.4,-2.22 2.12,0 4.02,0.84 5.4,2.22l2,-2C17.74,11.14 15.24,10 12.5,10S7.26,11.14 5.1,12.9z"/>
+    <!-- WiFi dot -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M12.5,17m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0"/>
+</vector>

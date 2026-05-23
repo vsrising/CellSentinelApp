@@ -138,6 +138,56 @@ public class CellSentinelApi {
         });
     }
 
+    // ── Geographic bounds queries ────────────────────────────────────────────
+
+    public static void getLteCellsByBounds(Context ctx,
+                                            double minLat, double maxLat,
+                                            double minLon, double maxLon,
+                                            int pageSize,
+                                            CellListCallback<LteCellInfo> cb) {
+        String key = String.format(java.util.Locale.US,
+                "lte_bbox_%.3f_%.3f_%.3f_%.3f", minLat, maxLat, minLon, maxLon);
+        String path = "/system/infolte/list?"
+                + "params.minCellLat=" + minLat + "&params.maxCellLat=" + maxLat
+                + "&params.minCellLon=" + minLon + "&params.maxCellLon=" + maxLon
+                + "&pageNum=1&pageSize=" + pageSize;
+        ApiClient.get(ctx, path, new ApiClient.Callback() {
+            @Override public void onSuccess(String body) {
+                List<LteCellInfo> cells = parseLteList(body);
+                if (!cells.isEmpty()) CellInfoCache.storeLteCells(ctx, key, cells);
+                cb.onSuccess(cells);
+            }
+            @Override public void onError(String message) {
+                List<LteCellInfo> cached = CellInfoCache.loadLteCells(ctx, key);
+                cb.onSuccess(cached != null ? cached : new java.util.ArrayList<>());
+            }
+        });
+    }
+
+    public static void getNrCellsByBounds(Context ctx,
+                                           double minLat, double maxLat,
+                                           double minLon, double maxLon,
+                                           int pageSize,
+                                           CellListCallback<NrCellInfo> cb) {
+        String key = String.format(java.util.Locale.US,
+                "nr_bbox_%.3f_%.3f_%.3f_%.3f", minLat, maxLat, minLon, maxLon);
+        String path = "/system/infonr/list?"
+                + "params.minCellLat=" + minLat + "&params.maxCellLat=" + maxLat
+                + "&params.minCellLon=" + minLon + "&params.maxCellLon=" + maxLon
+                + "&pageNum=1&pageSize=" + pageSize;
+        ApiClient.get(ctx, path, new ApiClient.Callback() {
+            @Override public void onSuccess(String body) {
+                List<NrCellInfo> cells = parseNrList(body);
+                if (!cells.isEmpty()) CellInfoCache.storeNrCells(ctx, key, cells);
+                cb.onSuccess(cells);
+            }
+            @Override public void onError(String message) {
+                List<NrCellInfo> cached = CellInfoCache.loadNrCells(ctx, key);
+                cb.onSuccess(cached != null ? cached : new java.util.ArrayList<>());
+            }
+        });
+    }
+
     // ── JSON parsers ─────────────────────────────────────────────────────────
 
     static List<LteCellInfo> parseLteList(String json) {

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Toolbar row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorSurface">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="信令事件日志"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="8dp" />
+
+        <Button
+            android:id="@+id/btn_sig_export"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="导出"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_sig_toggle"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始监听"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_sig_clear"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清除"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A000000" />
+
+    <!-- SIM selection chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_sim_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全部SIM"
+                android:checkable="true"
+                android:checked="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_marginEnd="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_sim_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SIM 1"
+                android:checkable="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_marginEnd="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_sim_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SIM 2"
+                android:checkable="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A000000" />
+
+    <!-- Filter chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_filter_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全部"
+                android:checkable="true"
+                android:checked="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_marginEnd="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_filter_handover"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="切换"
+                android:checkable="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_marginEnd="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_filter_rat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RAT变更"
+                android:checkable="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_marginEnd="4dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_filter_service"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="服务状态"
+                android:checkable="true"
+                style="@style/Widget.MaterialComponents.Chip.Filter" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Log list -->
+    <ScrollView
+        android:id="@+id/sv_sig_log"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <TextView
+            android:id="@+id/tv_sig_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="12sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="monospace"
+            android:lineSpacingMultiplier="1.5"
+            android:text="点击开始监听以记录信令事件..." />
+
+    </ScrollView>
+
+</LinearLayout>

@@ -19,6 +19,7 @@ public class ProfileFragment extends Fragment {
     private TextView mTvLoginStatus;
     private TextView mTvNickName;
     private EditText mEtServerUrl;
+    private EditText mEtBackupServerUrl;
     private Button   mBtnLogin;
     private Button   mBtnLogout;
     private Button   mBtnSaveUrl;
@@ -40,7 +41,9 @@ public class ProfileFragment extends Fragment {
         mBtnUploadSignal = root.findViewById(R.id.btn_upload_signal);
         mCardUser       = root.findViewById(R.id.card_user);
 
+        mEtBackupServerUrl = root.findViewById(R.id.et_backup_server_url);
         mEtServerUrl.setText(SettingUtils.getServerUrl(requireContext()));
+        mEtBackupServerUrl.setText(SettingUtils.getBackupServerUrl(requireContext()));
 
         mBtnSaveUrl.setOnClickListener(v -> saveServerUrl());
         mBtnLogin.setOnClickListener(v -> goToLogin());
@@ -80,11 +83,13 @@ public class ProfileFragment extends Fragment {
     private void saveServerUrl() {
         String url = mEtServerUrl.getText().toString().trim();
         if (url.isEmpty()) {
-            toast("服务器地址不能为空");
+            toast("主服务器地址不能为空");
             return;
         }
         SettingUtils.setServerUrl(requireContext(), url);
-        toast("服务器地址已保存");
+        String backup = mEtBackupServerUrl.getText().toString().trim();
+        SettingUtils.setBackupServerUrl(requireContext(), backup);
+        toast("服务器地址已保存" + (backup.isEmpty() ? "" : "（备用已配置）"));
     }
 
     private void goToLogin() {

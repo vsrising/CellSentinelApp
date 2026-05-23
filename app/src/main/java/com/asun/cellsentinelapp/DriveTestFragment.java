@@ -1,8 +1,13 @@
 package com.asun.cellsentinelapp;
 
+import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,10 +15,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
-import android.widget.Spinner;
+import android.widget.PopupMenu;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +27,16 @@ import com.google.android.material.card.MaterialCardView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -43,7 +58,6 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -53,6 +67,23 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     // ── Map tile sources ──────────────────────────────────────────────────────
 
     private static final String[] LAYER_NAMES = {"OSM 标准", "ESRI 卫星", "Google 卫星", "高德 卫星"};
+
+    // ── Track metric color coding ─────────────────────────────────────────────
+    private static final int METRIC_RSRP = 0;
+    private static final int METRIC_SINR = 1;
+    private static final int METRIC_RSRQ = 2;
+    private static final String[] METRIC_NAMES = {"RSRP", "SINR", "RSRQ"};
+
+    // Threshold arrays (best→worst). getMetricColor() walks these top-down.
+    // RSRP (dBm) – 3GPP standard breakpoints
+    private static final int[] RSRP_THRESH = { -80, -95, -105, -115 };
+    private static final int[] RSRP_COLORS = { 0xFF00B050, 0xFF92D050, 0xFFFFFF00, 0xFFFF8C00, 0xFFFF0000 };
+    // SINR (dB)
+    private static final int[] SINR_THRESH = { 20, 10, 0, -3 };
+    private static final int[] SINR_COLORS = { 0xFF00B050, 0xFF92D050, 0xFFFFFF00, 0xFFFF8C00, 0xFFFF0000 };
+    // RSRQ (dB)
+    private static final int[] RSRQ_THRESH = { -6, -9, -12, -15 };
+    private static final int[] RSRQ_COLORS = { 0xFF00B050, 0xFF92D050, 0xFFFFFF00, 0xFFFF8C00, 0xFFFF0000 };
 
     private static OnlineTileSourceBase esriSatellite() {
         return new XYTileSource("ESRISatellite", 0, 19, 256, ".jpg",
@@ -110,36 +141,146 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         }
     }
 
+    // ── Playback data record ───────────────────────────────────────────────────
+
+    private static class PlaybackEntry {
+        final long   timestamp;
+        final double latitude, longitude;
+        final String rat, simLabel, operatorName;
+        final int    rsrp, rsrq, sinr, pci;
+
+        PlaybackEntry(long ts, double lat, double lon,
+                      String rat, int rsrp, int rsrq, int sinr, int pci,
+                      String simLabel, String operatorName) {
+            timestamp = ts; latitude = lat; longitude = lon;
+            this.rat = rat; this.rsrp = rsrp; this.rsrq = rsrq;
+            this.sinr = sinr; this.pci = pci;
+            this.simLabel = simLabel; this.operatorName = operatorName;
+        }
+    }
+
+    private static class TrackPoint {
+        final GeoPoint point;
+        final int rsrp, rsrq, sinr;
+        TrackPoint(GeoPoint p, int rsrp, int rsrq, int sinr) {
+            this.point = p; this.rsrp = rsrp; this.rsrq = rsrq; this.sinr = sinr;
+        }
+    }
+
     // ── Fields ────────────────────────────────────────────────────────────────
 
     private MapView mMapView;
     private MyLocationNewOverlay mLocationOverlay;
     private ScaleBarOverlay      mScaleBarOverlay;
-    private Polyline             mPathOverlay;
-    private List<GeoPoint>       mPathPoints = new ArrayList<>();
+    private final List<TrackPoint> mTrackPoints   = new ArrayList<>();
+    private final List<Polyline>   mTrackSegments = new ArrayList<>();
+    private int                    mTrackMetric   = METRIC_RSRP;
+    private TextView               mTvMetricSelect;
 
-    // Cell overlays
-    private final List<SectorEntry> mSectorData    = new ArrayList<>();
-    private final List<Polygon>     mSectorOverlays = new ArrayList<>();
-    private final List<Polyline>    mLineOverlays   = new ArrayList<>();
-    private final List<Marker>      mMarkerOverlays = new ArrayList<>();
+    // Cell overlays – mSectorData replaced by mAllSectorCache for persistence
+    private final Map<String, SectorEntry> mAllSectorCache = new LinkedHashMap<>();
+    private final List<Polygon>            mSectorOverlays  = new ArrayList<>();
+    private final List<Polyline>           mLineOverlays    = new ArrayList<>();
+    private final List<Marker>             mMarkerOverlays  = new ArrayList<>();
 
-    private double mCurrentZoom = 15.0;
+    private double   mCurrentZoom        = 15.0;
+    private GeoPoint mLastLoadCenter     = null;
+    private GeoPoint mLastMapLoadCenter  = null;
 
     private DriveTestManager mManager;
     private boolean  mMeasureMode   = false;
     private GeoPoint mMeasurePoint1 = null;
     private Polyline mMeasureLine   = null;
 
+    // Scroll debounce
+    private final Handler  mScrollHandler         = new Handler(Looper.getMainLooper());
+    private final Runnable mScrollDebounceRunnable = () -> {
+        reRenderSectorPolygons();
+        checkAutoLoad();
+    };
+
+    // ── Playback state ────────────────────────────────────────────────────────
+    private final List<PlaybackEntry> mPlaybackRecords = new ArrayList<>();
+    private int      mPlaybackIndex          = 0;
+    private boolean  mIsPlaying              = false;
+    private int      mPlaybackSpeedMult      = 1;
+    private static final long PLAYBACK_STEP_MS = 150;
+    private final Handler  mPlaybackHandler = new Handler(Looper.getMainLooper());
+    private Marker   mPlaybackMarker = null;
+    private Polyline mPlaybackPath   = null;
+    private final List<Polyline> mPlaybackSegments = new ArrayList<>();
+
+    private final Runnable mPlaybackRunnable = new Runnable() {
+        @Override public void run() {
+            if (!mIsPlaying) return;
+            if (mPlaybackIndex < mPlaybackRecords.size() - 1) {
+                advancePlaybackTo(mPlaybackIndex + 1);
+                mPlaybackHandler.postDelayed(this, PLAYBACK_STEP_MS / mPlaybackSpeedMult);
+            } else {
+                mIsPlaying = false;
+                if (mBtnPlaybackPlayPause != null) mBtnPlaybackPlayPause.setText("▶ 播放");
+                toast("回放完成");
+            }
+        }
+    };
+
+    // ── UI refs ───────────────────────────────────────────────────────────────
     private TextView         mTvStatus;
     private TextView         mTvCount;
-    private Button           mBtnStartStop;
-    private Button           mBtnMeasure;
-    private Button           mBtnRefreshCells;
-    private Spinner          mSpinnerLayer;
     private TextView         mTvMeasureResult;
     private MaterialCardView mCardCellInfo;
     private TextView         mTvCellInfo;
+
+    // SIM selection  (-1 = all, 0 = SIM1, 1 = SIM2)
+    private int      mTestSimIndex = 1;
+    private TextView mTvSimSelect;
+
+    // Compass FABs
+    private Button  mFabMain;
+    private Button  mFabStartStop;
+    private Button  mFabMeasure;
+    private Button  mFabRefresh;
+    private Button  mFabLayer;
+    private Button  mFabMore;
+    private View    mCompassDisc;
+    private boolean mIsCompassExpanded = false;
+    private int     mCurrentLayerIndex = 0;
+
+    // Playback UI
+    private MaterialCardView mCardPlayback;
+    private TextView         mTvPlaybackFile;
+    private TextView         mTvPlaybackTime;
+    private SeekBar          mSeekBarPlayback;
+    private Button           mBtnPlaybackPlayPause;
+    private Button           mBtnPlaybackSpeed;
+    private Button           mBtnPlaybackClose;
+
+    // Recording overlay: mini chart + live stats
+    private MaterialCardView mCardMiniChart;
+    private SignalChartView  mMiniChart;
+    private TextView         mTvSpeed;
+    private TextView         mTvLiveSignal;
+    private TextView         mTvStats;
+
+    // Session stats (reset on start recording)
+    private int  mStatsRsrpMin   = Integer.MAX_VALUE;
+    private int  mStatsRsrpMax   = Integer.MIN_VALUE;
+    private long mStatsRsrpSum   = 0;
+    private int  mStatsRsrpCount = 0;
+
+    // Handover detection
+    private int         mLastPci         = Integer.MAX_VALUE;
+    private final List<Marker> mHandoverMarkers = new ArrayList<>();
+
+    // WiFi layer (drive test indoor coverage)
+    private final List<Marker> mWifiMarkers = new ArrayList<>();
+    private boolean mShowWifiLayer = false;
+
+    // Signal overlay (always-visible top-right card)
+    private MaterialCardView mCardSignalOverlay;
+    private TextView         mTvOverlayRsrp;
+    private TextView         mTvOverlaySinr;
+    private TextView         mTvOverlayRsrq;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -154,30 +295,128 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
 
         View root = inflater.inflate(R.layout.fragment_drive_test, container, false);
 
-        mMapView          = root.findViewById(R.id.map_view);
-        mTvStatus         = root.findViewById(R.id.tv_gps_status);
-        mTvCount          = root.findViewById(R.id.tv_record_count);
-        mBtnStartStop     = root.findViewById(R.id.btn_start_stop);
-        mBtnMeasure       = root.findViewById(R.id.btn_measure);
-        mBtnRefreshCells  = root.findViewById(R.id.btn_refresh_cells);
-        mSpinnerLayer     = root.findViewById(R.id.spinner_layer);
-        mTvMeasureResult  = root.findViewById(R.id.tv_measure_result);
-        mCardCellInfo     = root.findViewById(R.id.card_cell_info);
-        mTvCellInfo       = root.findViewById(R.id.tv_cell_info);
+        mMapView         = root.findViewById(R.id.map_view);
+        mTvStatus        = root.findViewById(R.id.tv_gps_status);
+        mTvCount         = root.findViewById(R.id.tv_record_count);
+        mTvSimSelect     = root.findViewById(R.id.tv_sim_select);
+        mTvMetricSelect  = root.findViewById(R.id.tv_metric_select);
+        mTvMeasureResult = root.findViewById(R.id.tv_measure_result);
+        mCardCellInfo    = root.findViewById(R.id.card_cell_info);
+        mTvCellInfo      = root.findViewById(R.id.tv_cell_info);
+
+        // Compass UI
+        mFabMain      = root.findViewById(R.id.fab_main);
+        mFabStartStop = root.findViewById(R.id.fab_start_stop);
+        mFabMeasure   = root.findViewById(R.id.fab_measure);
+        mFabRefresh   = root.findViewById(R.id.fab_refresh);
+        mFabLayer     = root.findViewById(R.id.fab_layer);
+        mFabMore      = root.findViewById(R.id.fab_more);
+        mCompassDisc  = root.findViewById(R.id.compass_disc);
+
+        // Playback UI
+        mCardPlayback         = root.findViewById(R.id.card_playback);
+        mTvPlaybackFile       = root.findViewById(R.id.tv_playback_file);
+        mTvPlaybackTime       = root.findViewById(R.id.tv_playback_time);
+        mSeekBarPlayback      = root.findViewById(R.id.seekbar_playback);
+        mBtnPlaybackPlayPause = root.findViewById(R.id.btn_playback_play_pause);
+        mBtnPlaybackSpeed     = root.findViewById(R.id.btn_playback_speed);
+        mBtnPlaybackClose     = root.findViewById(R.id.btn_playback_close);
+
+        // Recording overlay
+        mCardMiniChart = root.findViewById(R.id.card_mini_chart);
+        mMiniChart     = root.findViewById(R.id.mini_chart);
+        mTvSpeed       = root.findViewById(R.id.tv_speed);
+        mTvLiveSignal  = root.findViewById(R.id.tv_live_signal);
+        mTvStats       = root.findViewById(R.id.tv_stats);
+
+        // Signal overlay
+        mCardSignalOverlay = root.findViewById(R.id.card_signal_overlay);
+        mTvOverlayRsrp     = root.findViewById(R.id.tv_overlay_rsrp);
+        mTvOverlaySinr     = root.findViewById(R.id.tv_overlay_sinr);
+        mTvOverlayRsrq     = root.findViewById(R.id.tv_overlay_rsrq);
 
         setupMap();
-        setupLayerSpinner();
 
         mManager = new DriveTestManager(requireContext());
         mManager.setStateListener(this);
 
-        mBtnStartStop.setOnClickListener(v -> toggleRecording());
-        mBtnMeasure.setOnClickListener(v -> toggleMeasureMode());
-        mBtnRefreshCells.setOnClickListener(v -> refreshCellOverlays());
+        mTvSimSelect.setOnClickListener(v -> {
+            mTestSimIndex++;
+            if (mTestSimIndex > 1) mTestSimIndex = -1;
+            mManager.setTestSimIndex(mTestSimIndex);
+            updateSimLabel();
+            refreshCellOverlays();
+        });
 
-        root.findViewById(R.id.btn_export).setOnClickListener(v -> exportCsv());
-        root.findViewById(R.id.btn_upload).setOnClickListener(v -> uploadRecords());
-        root.findViewById(R.id.btn_clear).setOnClickListener(v -> clearRecords());
+        mTvMetricSelect.setOnClickListener(v -> {
+            mTrackMetric = (mTrackMetric + 1) % METRIC_NAMES.length;
+            updateMetricLabel();
+            redrawTrack();
+            if (!mPlaybackRecords.isEmpty()) redrawPlaybackPath();
+        });
+
+        mFabMain.setOnClickListener(v -> toggleCompass());
+
+        mFabStartStop.setOnClickListener(v -> {
+            collapseCompassItems();
+            mIsCompassExpanded = false;
+            toggleRecording();
+        });
+        mFabMeasure.setOnClickListener(v -> {
+            collapseCompassItems();
+            mIsCompassExpanded = false;
+            toggleMeasureMode();
+        });
+        mFabRefresh.setOnClickListener(v -> {
+            collapseCompassItems();
+            mIsCompassExpanded = false;
+            refreshCellOverlays();
+        });
+        mFabLayer.setOnClickListener(v -> {
+            collapseCompassItems();
+            mIsCompassExpanded = false;
+            cycleLayer();
+        });
+        mFabMore.setOnClickListener(v -> {
+            collapseCompassItems();
+            mIsCompassExpanded = false;
+            PopupMenu pm = new PopupMenu(requireContext(), v);
+            pm.getMenu().add(0, 1, 0, "导出 CSV");
+            pm.getMenu().add(0, 2, 0, "导出 KML");
+            pm.getMenu().add(0, 3, 0, "上报服务器");
+            pm.getMenu().add(0, 4, 0, "清除记录");
+            pm.getMenu().add(0, 5, 0, "数据回放");
+            pm.getMenu().add(0, 6, 0, mShowWifiLayer ? "隐藏 WiFi 层" : "显示 WiFi 层");
+            pm.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case 1: exportCsv();             return true;
+                    case 2: exportKml();             return true;
+                    case 3: uploadRecords();          return true;
+                    case 4: clearRecords();           return true;
+                    case 5: showPlaybackFilePicker(); return true;
+                    case 6: toggleWifiLayer();        return true;
+                }
+                return false;
+            });
+            pm.show();
+        });
+
+        root.findViewById(R.id.btn_zoom_in).setOnClickListener(v -> mMapView.getController().zoomIn());
+        root.findViewById(R.id.btn_zoom_out).setOnClickListener(v -> mMapView.getController().zoomOut());
+        root.findViewById(R.id.btn_locate).setOnClickListener(v -> locateMe());
+
+        mBtnPlaybackPlayPause.setOnClickListener(v -> togglePlayback());
+        mBtnPlaybackSpeed.setOnClickListener(v -> cyclePlaybackSpeed());
+        root.findViewById(R.id.btn_playback_prev).setOnClickListener(v -> resetPlayback());
+        mBtnPlaybackClose.setOnClickListener(v -> stopPlayback());
+
+        mSeekBarPlayback.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {
+                if (fromUser) advancePlaybackTo(p);
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {}
+        });
 
         return root;
     }
@@ -205,6 +444,10 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        for (Polyline seg : mTrackSegments) mMapView.getOverlays().remove(seg);
+        for (Polyline seg : mPlaybackSegments) mMapView.getOverlays().remove(seg);
+        mPlaybackHandler.removeCallbacksAndMessages(null);
+        mScrollHandler.removeCallbacksAndMessages(null);
         if (mManager.isRecording()) mManager.stopRecording();
         if (mMapView != null) mMapView.onDetach();
     }
@@ -243,16 +486,14 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         rotation.setEnabled(true);
         mMapView.getOverlays().add(rotation);
 
-        mPathOverlay = new Polyline(mMapView);
-        mPathOverlay.getOutlinePaint().setColor(Color.argb(200, 255, 60, 60));
-        mPathOverlay.getOutlinePaint().setStrokeWidth(5f);
-        mPathOverlay.setPoints(mPathPoints);
-        mMapView.getOverlays().add(mPathOverlay);
-
-        // Zoom-adaptive sector re-rendering
+        // Zoom-adaptive + viewport-filtered sector re-rendering
         mMapView.addMapListener(new MapListener() {
             @Override
-            public boolean onScroll(ScrollEvent event) { return false; }
+            public boolean onScroll(ScrollEvent event) {
+                mScrollHandler.removeCallbacks(mScrollDebounceRunnable);
+                mScrollHandler.postDelayed(mScrollDebounceRunnable, 500);
+                return false;
+            }
 
             @Override
             public boolean onZoom(ZoomEvent event) {
@@ -285,7 +526,10 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         for (Polygon p : mSectorOverlays) mMapView.getOverlays().remove(p);
         mSectorOverlays.clear();
         double radiusM = getSectorRadiusM();
-        for (SectorEntry e : mSectorData) {
+        org.osmdroid.util.BoundingBox bbox = mMapView.getBoundingBox();
+        for (SectorEntry e : mAllSectorCache.values()) {
+            // Only render sectors whose site is within the current viewport
+            if (bbox != null && !bbox.contains(new GeoPoint(e.lat, e.lon))) continue;
             double r = e.isNr ? radiusM * 0.7 : radiusM;
             Polygon sector = e.isServing
                     ? SectorDrawer.servingSector(e.lat, e.lon, e.azimuth, r)
@@ -293,7 +537,8 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
             sector.setTitle(e.title);
             sector.setSnippet(e.snippet);
             sector.setOnClickListener((polygon, mapView, eventPos) -> {
-                polygon.showInfoWindow();
+                mTvCellInfo.setText(polygon.getTitle() + "\n" + polygon.getSnippet());
+                mCardCellInfo.setVisibility(View.VISIBLE);
                 return true;
             });
             mSectorOverlays.add(sector);
@@ -302,18 +547,79 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         mMapView.invalidate();
     }
 
-    private void setupLayerSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, LAYER_NAMES);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerLayer.setAdapter(adapter);
-        mSpinnerLayer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                switchLayer(pos);
+    private void checkAutoLoad() {
+        // GPS movement → reload signal-based cells
+        if (mLocationOverlay != null) {
+            GeoPoint gps = mLocationOverlay.getMyLocation();
+            if (gps != null) {
+                if (mLastLoadCenter == null) { mLastLoadCenter = gps; }
+                else {
+                    double d = SectorDrawer.distanceMetres(
+                            mLastLoadCenter.getLatitude(), mLastLoadCenter.getLongitude(),
+                            gps.getLatitude(), gps.getLongitude());
+                    if (d > 2000) {
+                        mLastLoadCenter = gps;
+                        mLastMapLoadCenter = null;
+                        refreshCellOverlays();
+                        return;
+                    }
+                }
             }
-            @Override public void onNothingSelected(AdapterView<?> p) {}
-        });
+        }
+        // Map pan → load cells visible in the new viewport (additive, no clear)
+        org.osmdroid.api.IGeoPoint c = mMapView.getMapCenter();
+        GeoPoint mc = new GeoPoint(c.getLatitude(), c.getLongitude());
+        if (mLastMapLoadCenter == null) { mLastMapLoadCenter = mc; return; }
+        double d = SectorDrawer.distanceMetres(
+                mLastMapLoadCenter.getLatitude(), mLastMapLoadCenter.getLongitude(),
+                mc.getLatitude(), mc.getLongitude());
+        if (d > 1500) {
+            mLastMapLoadCenter = mc;
+            loadCellsForViewport();
+        }
+    }
+
+    private void loadCellsForViewport() {
+        org.osmdroid.util.BoundingBox bbox = mMapView.getBoundingBox();
+        if (bbox == null) return;
+        double latPad = (bbox.getLatNorth() - bbox.getLatSouth()) * 0.3;
+        double lonPad = (bbox.getLonEast() - bbox.getLonWest()) * 0.3;
+        double minLat = bbox.getLatSouth() - latPad;
+        double maxLat = bbox.getLatNorth() + latPad;
+        double minLon = bbox.getLonWest() - lonPad;
+        double maxLon = bbox.getLonEast() + lonPad;
+        GeoPoint gps = mLocationOverlay != null ? mLocationOverlay.getMyLocation() : null;
+
+        CellSentinelApi.getLteCellsByBounds(requireContext(), minLat, maxLat, minLon, maxLon, 200,
+                new CellSentinelApi.CellListCallback<LteCellInfo>() {
+                    @Override public void onSuccess(List<LteCellInfo> cells) {
+                        if (cells.isEmpty()) return;
+                        for (LteCellInfo cell : cells) addLteSector(cell, false, gps);
+                        reRenderSectorPolygons();
+                    }
+                    @Override public void onError(String msg) {}
+                });
+        CellSentinelApi.getNrCellsByBounds(requireContext(), minLat, maxLat, minLon, maxLon, 100,
+                new CellSentinelApi.CellListCallback<NrCellInfo>() {
+                    @Override public void onSuccess(List<NrCellInfo> cells) {
+                        if (cells.isEmpty()) return;
+                        for (NrCellInfo cell : cells) addNrSector(cell, false, gps);
+                        reRenderSectorPolygons();
+                    }
+                    @Override public void onError(String msg) {}
+                });
+    }
+
+    private void cycleLayer() {
+        mCurrentLayerIndex = (mCurrentLayerIndex + 1) % LAYER_NAMES.length;
+        switchLayer(mCurrentLayerIndex);
+        String[] shortNames = {"OSM", "ESRI", "谷歌", "高德"};
+        mFabLayer.setText("图层\n" + shortNames[mCurrentLayerIndex]);
+        toast(LAYER_NAMES[mCurrentLayerIndex]);
+    }
+
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
 
     private void switchLayer(int index) {
@@ -326,15 +632,20 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         mMapView.invalidate();
     }
 
-    public void zoomIn()  { mMapView.getController().zoomIn(); }
-    public void zoomOut() { mMapView.getController().zoomOut(); }
+    private void locateMe() {
+        GeoPoint loc = mLocationOverlay != null ? mLocationOverlay.getMyLocation() : null;
+        if (loc != null) {
+            mMapView.getController().animateTo(loc);
+        } else {
+            toast("等待 GPS 定位…");
+        }
+    }
 
     // ── Measure mode ──────────────────────────────────────────────────────────
 
     private void toggleMeasureMode() {
         mMeasureMode = !mMeasureMode;
         mMeasurePoint1 = null;
-        mBtnMeasure.setText(mMeasureMode ? "取消测距" : "测距");
         mTvMeasureResult.setVisibility(View.GONE);
         requireView().findViewById(R.id.card_measure).setVisibility(View.GONE);
         if (!mMeasureMode && mMeasureLine != null) {
@@ -390,10 +701,13 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         }
         clearCellOverlays();
         mCurrentZoom = mMapView.getZoomLevelDouble();
+        GeoPoint gps = mLocationOverlay != null ? mLocationOverlay.getMyLocation() : null;
+        if (gps != null) mLastLoadCenter = gps;
         List<CellSignalManager.SimSignalData> sims = MainActivity.signalManager.getSimDataList();
-        for (CellSignalManager.SimSignalData sim : sims) {
-            loadLteOverlay(sim);
-            loadNrOverlay(sim);
+        for (int i = 0; i < sims.size(); i++) {
+            if (mTestSimIndex >= 0 && i != mTestSimIndex) continue;
+            loadLteOverlay(sims.get(i));
+            loadNrOverlay(sims.get(i));
         }
     }
 
@@ -456,18 +770,16 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
                             loadAreaCells(sim, serving, gpsPoint);
                             loadNeighborCellsFromSignal(sim, serving, gpsPoint);
                         }
-                        addMissingInfoMarker(gpsPoint);
                         mMapView.invalidate();
                     }
                     @Override
                     public void onError(String msg) {
-                        addMissingInfoMarker(gpsPoint);
                         mMapView.invalidate();
                     }
                 });
     }
 
-    /** GPS→serving-cell connection line + invisible distance midpoint marker. Only for CI match. */
+    /** GPS→serving-cell connection line. Only drawn for CI-confirmed matches. */
     private void drawServingConnection(LteCellInfo serving, GeoPoint gpsPoint) {
         if (gpsPoint == null || !serving.hasValidCoords()) return;
         Polyline l = SectorDrawer.servingLine(
@@ -475,30 +787,13 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
                 serving.cellLat, serving.cellLon);
         mLineOverlays.add(l);
         mMapView.getOverlays().add(l);
-        Marker dm = SectorDrawer.distanceMarker(mMapView,
-                gpsPoint.getLatitude(), gpsPoint.getLongitude(),
-                serving.cellLat, serving.cellLon, "GPS→" + serving.cellName);
-        mMarkerOverlays.add(dm);
-        mMapView.getOverlays().add(dm);
-    }
-
-    /** Warning marker at GPS position when CI not matched in DB. */
-    private void addMissingInfoMarker(GeoPoint gpsPoint) {
-        if (gpsPoint == null) return;
-        Marker m = new Marker(mMapView);
-        m.setPosition(gpsPoint);
-        m.setTitle("缺失基础信息");
-        m.setSnippet("CI未匹配到基站数据库，扇形为PCI估算");
-        m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        mMarkerOverlays.add(m);
-        mMapView.getOverlays().add(m);
     }
 
     /** Load TAC-area cells, filtered to MAX_CELL_DIST_M around the serving cell. */
     private void loadAreaCells(CellSignalManager.SimSignalData sim,
                                 LteCellInfo serving, GeoPoint gpsPoint) {
         if (sim.lte_TAC == Integer.MAX_VALUE) return;
-        CellSentinelApi.getLteCellsByTac(requireContext(), sim.lte_TAC, 50,
+        CellSentinelApi.getLteCellsByTac(requireContext(), sim.lte_TAC, 300,
                 new CellSentinelApi.CellListCallback<LteCellInfo>() {
                     @Override
                     public void onSuccess(List<LteCellInfo> cells) {
@@ -563,29 +858,29 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void addLteSector(LteCellInfo cell, boolean isServing, GeoPoint gpsPoint) {
         if (!cell.hasValidCoords()) return;
         double radiusM = getSectorRadiusM();
-        Polygon sector = isServing
-                ? SectorDrawer.servingSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM)
-                : SectorDrawer.areaSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM);
         String title   = cell.cellName;
         String snippet = String.format(Locale.US,
                 "PCI:%d  TAC:%d  方位角:%d°\n%s  %s",
                 cell.pci, cell.tac, cell.azimuth, cell.frequencyBand, cell.operator);
+        SectorEntry entry = new SectorEntry(cell.cellLat, cell.cellLon, cell.azimuth,
+                isServing, false, title, snippet);
+        String cacheKey = "lte_" + cell.enodebId + "_" + cell.cellId + "_" + cell.azimuth;
+        mAllSectorCache.put(cacheKey, entry);
+
+        Polygon sector = isServing
+                ? SectorDrawer.servingSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM)
+                : SectorDrawer.areaSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM);
         sector.setTitle(title);
         sector.setSnippet(snippet);
         sector.setOnClickListener((polygon, mapView, eventPos) -> {
-            polygon.showInfoWindow();
+            mTvCellInfo.setText(polygon.getTitle() + "\n" + polygon.getSnippet());
+            mCardCellInfo.setVisibility(View.VISIBLE);
             return true;
         });
         mSectorOverlays.add(sector);
         mMapView.getOverlays().add(sector);
-        mSectorData.add(new SectorEntry(cell.cellLat, cell.cellLon, cell.azimuth,
-                isServing, false, title, snippet));
 
         if (isServing) {
-            Marker label = SectorDrawer.nameLabel(mMapView, cell.cellLat, cell.cellLon,
-                    title, snippet);
-            mMarkerOverlays.add(label);
-            mMapView.getOverlays().add(label);
             showServingCellInfo(cell);
         }
     }
@@ -593,29 +888,29 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void addNrSector(NrCellInfo cell, boolean isServing, GeoPoint gpsPoint) {
         if (!cell.hasValidCoords()) return;
         double radiusM = getSectorRadiusM() * 0.7;
-        Polygon sector = isServing
-                ? SectorDrawer.servingSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM)
-                : SectorDrawer.neighborSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM);
         String title   = cell.cellName;
         String snippet = String.format(Locale.US,
                 "NR PCI:%d  TAC:%d  方位角:%d°\n%s  %s",
                 cell.physicalCellId, cell.tac, cell.azimuth, cell.frequencyBand, cell.operator);
+        SectorEntry entry = new SectorEntry(cell.cellLat, cell.cellLon, cell.azimuth,
+                isServing, true, title, snippet);
+        String cacheKey = "nr_" + cell.gnodebId + "_" + cell.cellId + "_" + cell.azimuth;
+        mAllSectorCache.put(cacheKey, entry);
+
+        Polygon sector = isServing
+                ? SectorDrawer.servingSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM)
+                : SectorDrawer.neighborSector(cell.cellLat, cell.cellLon, cell.azimuth, radiusM);
         sector.setTitle(title);
         sector.setSnippet(snippet);
         sector.setOnClickListener((polygon, mapView, eventPos) -> {
-            polygon.showInfoWindow();
+            mTvCellInfo.setText(polygon.getTitle() + "\n" + polygon.getSnippet());
+            mCardCellInfo.setVisibility(View.VISIBLE);
             return true;
         });
         mSectorOverlays.add(sector);
         mMapView.getOverlays().add(sector);
-        mSectorData.add(new SectorEntry(cell.cellLat, cell.cellLon, cell.azimuth,
-                isServing, true, title, snippet));
 
         if (isServing) {
-            Marker label = SectorDrawer.nameLabel(mMapView, cell.cellLat, cell.cellLon,
-                    title, snippet);
-            mMarkerOverlays.add(label);
-            mMapView.getOverlays().add(label);
             showServingCellInfo(cell);
         }
     }
@@ -677,7 +972,8 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         mSectorOverlays.clear();
         mLineOverlays.clear();
         mMarkerOverlays.clear();
-        mSectorData.clear();
+        // mAllSectorCache is intentionally NOT cleared – it persists across refreshes
+        // so that panning the map can show previously loaded cells immediately.
         if (mCardCellInfo != null) mCardCellInfo.setVisibility(View.GONE);
     }
 
@@ -700,8 +996,8 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     @Override
     public void onLocationUpdate(Location location, DriveTestRecord newRecord) {
         GeoPoint gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-        mPathPoints.add(gp);
-        mPathOverlay.setPoints(new ArrayList<>(mPathPoints));
+        TrackPoint tp = new TrackPoint(gp, newRecord.rsrp, newRecord.rsrq, newRecord.sinr);
+        addTrackPoint(tp);
         mMapView.getController().animateTo(gp);
         mMapView.invalidate();
 
@@ -710,6 +1006,49 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
                 location.getLatitude(), location.getLongitude(), location.getAccuracy());
         mTvStatus.setText(gpsText);
         mTvCount.setText("已录制 " + mManager.getRecordCount() + " 条");
+
+        // GPS speed
+        float speedKmh = location.hasSpeed() ? location.getSpeed() * 3.6f : 0f;
+        if (mTvSpeed != null)
+            mTvSpeed.setText(String.format(Locale.US, "%.0f km/h", speedKmh));
+
+        // Live signal display
+        if (mTvLiveSignal != null && newRecord.rsrp != Integer.MAX_VALUE)
+            mTvLiveSignal.setText(String.format(Locale.US,
+                    "RSRP %d  SINR %s  RSRQ %s",
+                    newRecord.rsrp,
+                    newRecord.sinr == Integer.MAX_VALUE ? "—" : String.valueOf(newRecord.sinr),
+                    newRecord.rsrq == Integer.MAX_VALUE ? "—" : String.valueOf(newRecord.rsrq)));
+
+        // Session stats
+        if (newRecord.rsrp != Integer.MAX_VALUE) {
+            if (mStatsRsrpMin == Integer.MAX_VALUE || newRecord.rsrp < mStatsRsrpMin)
+                mStatsRsrpMin = newRecord.rsrp;
+            if (mStatsRsrpMax == Integer.MIN_VALUE || newRecord.rsrp > mStatsRsrpMax)
+                mStatsRsrpMax = newRecord.rsrp;
+            mStatsRsrpSum  += newRecord.rsrp;
+            mStatsRsrpCount++;
+            if (mTvStats != null && mStatsRsrpCount > 0) {
+                int avg = (int)(mStatsRsrpSum / mStatsRsrpCount);
+                mTvStats.setText(String.format(Locale.US,
+                        "RSRP  min %d  avg %d  max %d dBm",
+                        mStatsRsrpMin, avg, mStatsRsrpMax));
+            }
+        }
+
+        // Handover detection
+        if (newRecord.pci != Integer.MAX_VALUE
+                && mLastPci != Integer.MAX_VALUE
+                && newRecord.pci != mLastPci) {
+            markHandover(gp, mLastPci, newRecord.pci);
+        }
+        if (newRecord.pci != Integer.MAX_VALUE) mLastPci = newRecord.pci;
+
+        // Mini chart
+        if (mMiniChart != null) mMiniChart.addSample(newRecord.rsrp, newRecord.sinr, newRecord.rsrq);
+
+        // WiFi layer: scan at current position (throttled by WifiManager internal cooldown)
+        if (mShowWifiLayer) scanAndPlotWifi(gp);
     }
 
     @Override
@@ -728,6 +1067,12 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
             mManager.stopRecording();
             toast("已停止，共 " + mManager.getRecordCount() + " 条");
         } else {
+            // Reset session stats
+            mStatsRsrpMin   = Integer.MAX_VALUE;
+            mStatsRsrpMax   = Integer.MIN_VALUE;
+            mStatsRsrpSum   = 0;
+            mStatsRsrpCount = 0;
+            mLastPci        = Integer.MAX_VALUE;
             boolean ok = mManager.startRecording(DriveTestManager.generateSessionName());
             if (ok) {
                 toast("开始路测");
@@ -740,7 +1085,13 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void exportCsv() {
         if (mManager.getRecordCount() == 0) { toast("暂无数据"); return; }
         File f = mManager.exportCsv();
-        toast(f != null ? "已导出: " + f.getName() : "导出失败");
+        toast(f != null ? "CSV 已导出: " + f.getName() : "导出失败");
+    }
+
+    private void exportKml() {
+        if (mManager.getRecordCount() == 0) { toast("暂无数据"); return; }
+        File f = mManager.exportKml();
+        toast(f != null ? "KML 已导出: " + f.getName() : "导出失败");
     }
 
     private void uploadRecords() {
@@ -757,18 +1108,459 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void clearRecords() {
         if (mManager.isRecording()) { toast("请先停止录制"); return; }
         mManager.clearRecords();
-        mPathPoints.clear();
-        mPathOverlay.setPoints(new ArrayList<>());
+        for (Polyline seg : mTrackSegments) mMapView.getOverlays().remove(seg);
+        mTrackSegments.clear();
+        mTrackPoints.clear();
+        for (Marker m : mHandoverMarkers) mMapView.getOverlays().remove(m);
+        mHandoverMarkers.clear();
+        for (Marker m : mWifiMarkers) mMapView.getOverlays().remove(m);
+        mWifiMarkers.clear();
         clearCellOverlays();
         mMapView.invalidate();
         mTvCount.setText("已录制 0 条");
+        // Reset stats display
+        mStatsRsrpMin = Integer.MAX_VALUE; mStatsRsrpMax = Integer.MIN_VALUE;
+        mStatsRsrpSum = 0; mStatsRsrpCount = 0;
+        if (mTvStats != null) mTvStats.setText("min/avg/max");
+        if (mTvLiveSignal != null) mTvLiveSignal.setText("RSRP: — dBm");
+        if (mTvSpeed != null) mTvSpeed.setText("— km/h");
         toast("已清除");
+    }
+
+    private void markHandover(GeoPoint location, int fromPci, int toPci) {
+        int sizePx = (int)(dpToPx(22));
+        Bitmap bm = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
+        Canvas c  = new Canvas(bm);
+        Paint  p  = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setColor(0xFFFF8800); // orange
+        p.setStyle(Paint.Style.FILL);
+        c.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 1, p);
+        p.setColor(Color.WHITE);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(2f);
+        c.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2, p);
+        p.setColor(Color.WHITE);
+        p.setStyle(Paint.Style.FILL);
+        p.setTextSize(sizePx * 0.45f);
+        p.setTextAlign(Paint.Align.CENTER);
+        c.drawText("HO", sizePx / 2f, sizePx / 2f + p.getTextSize() * 0.35f, p);
+
+        Marker m = new Marker(mMapView);
+        m.setPosition(location);
+        m.setIcon(new android.graphics.drawable.BitmapDrawable(getResources(), bm));
+        m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        m.setTitle(String.format(Locale.US, "切换: PCI %d → %d", fromPci, toPci));
+        mHandoverMarkers.add(m);
+        mMapView.getOverlays().add(m);
     }
 
     private void updateButtonState() {
         boolean rec = mManager.isRecording();
-        mBtnStartStop.setText(rec ? "停止路测" : "开始路测");
+        if (mFabStartStop != null)
+            mFabStartStop.setText(rec ? "停止\n路测" : "开始\n路测");
+        int statVis = rec ? View.VISIBLE : View.GONE;
+        if (mCardMiniChart != null) mCardMiniChart.setVisibility(statVis);
+        if (mTvSpeed       != null) mTvSpeed.setVisibility(statVis);
+        if (mTvLiveSignal  != null) mTvLiveSignal.setVisibility(statVis);
+        if (mTvStats       != null) mTvStats.setVisibility(statVis);
     }
+
+    public void updateSignalOverlay() {
+        if (mTvOverlayRsrp == null || MainActivity.signalManager == null) return;
+        List<CellSignalManager.SimSignalData> sims = MainActivity.signalManager.getSimDataList();
+        if (sims.isEmpty()) return;
+        CellSignalManager.SimSignalData d = (mTestSimIndex >= 0 && mTestSimIndex < sims.size())
+                ? sims.get(mTestSimIndex) : sims.get(0);
+
+        int rsrp = d.lte_RSRP != Integer.MAX_VALUE ? d.lte_RSRP : d.nr_SSRSRP;
+        int sinr = d.lte_SINR != Integer.MAX_VALUE ? d.lte_SINR : d.nr_SSSINR;
+        int rsrq = d.lte_RSRQ != Integer.MAX_VALUE ? d.lte_RSRQ : d.nr_SSRSRQ;
+
+        mTvOverlayRsrp.setText(String.format(Locale.US, "RSRP %s dBm",
+                rsrp != Integer.MAX_VALUE ? String.valueOf(rsrp) : "—"));
+        mTvOverlaySinr.setText(String.format(Locale.US, "SINR %s dB",
+                sinr != Integer.MAX_VALUE ? String.valueOf(sinr) : "—"));
+        mTvOverlayRsrq.setText(String.format(Locale.US, "RSRQ %s dB",
+                rsrq != Integer.MAX_VALUE ? String.valueOf(rsrq) : "—"));
+
+        int rsrpColor = rsrp != Integer.MAX_VALUE ? getMetricColor(rsrp, METRIC_RSRP) : 0xFFFFFFFF;
+        mTvOverlayRsrp.setTextColor(rsrpColor);
+    }
+
+    private void updateSimLabel() {
+        if (mTvSimSelect == null) return;
+        String[] labels = {"测试: 全部", "测试: 卡1", "测试: 卡2"};
+        mTvSimSelect.setText(labels[mTestSimIndex + 1]);
+    }
+
+    // ── Compass radial menu ───────────────────────────────────────────────────
+
+    private void toggleCompass() {
+        if (mIsCompassExpanded) collapseCompassItems();
+        else expandCompassItems();
+        mIsCompassExpanded = !mIsCompassExpanded;
+    }
+
+    private void expandCompassItems() {
+        float r = dpToPx(96);
+        Button[] fabs   = {mFabStartStop, mFabMeasure, mFabRefresh, mFabLayer, mFabMore};
+        double[] angles = {90, 112.5, 135, 157.5, 180};
+
+        mCompassDisc.setVisibility(View.VISIBLE);
+        mCompassDisc.animate().alpha(0.7f).setDuration(200).start();
+
+        for (int i = 0; i < fabs.length; i++) {
+            fabs[i].setVisibility(View.VISIBLE);
+            fabs[i].setTranslationX(0);
+            fabs[i].setTranslationY(0);
+            float tx = (float)(r * Math.cos(Math.toRadians(angles[i])));
+            float ty = (float)(-r * Math.sin(Math.toRadians(angles[i])));
+            fabs[i].animate()
+                    .translationX(tx).translationY(ty)
+                    .setDuration(300)
+                    .setStartDelay(i * 30L)
+                    .setInterpolator(new OvershootInterpolator(1.2f))
+                    .start();
+        }
+    }
+
+    private void collapseCompassItems() {
+        Button[] fabs = {mFabStartStop, mFabMeasure, mFabRefresh, mFabLayer, mFabMore};
+
+        mCompassDisc.animate().alpha(0f).setDuration(200)
+                .withEndAction(() -> mCompassDisc.setVisibility(View.INVISIBLE))
+                .start();
+
+        for (Button fab : fabs) {
+            fab.animate()
+                    .translationX(0).translationY(0)
+                    .setDuration(200)
+                    .setInterpolator(null)
+                    .withEndAction(() -> fab.setVisibility(View.INVISIBLE))
+                    .start();
+        }
+    }
+
+    // ── Playback ──────────────────────────────────────────────────────────────
+
+    private void showPlaybackFilePicker() {
+        File dir = requireContext().getExternalFilesDir("drivetest");
+        if (dir == null || !dir.exists()) { toast("无可回放的路测文件"); return; }
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".csv"));
+        if (files == null || files.length == 0) { toast("无可回放的路测文件"); return; }
+        Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+        String[] names = new String[files.length];
+        for (int i = 0; i < files.length; i++) names[i] = files[i].getName();
+        final File[] filesFinal = files;
+        new AlertDialog.Builder(requireContext())
+                .setTitle("选择回放文件")
+                .setItems(names, (dialog, which) -> startPlayback(filesFinal[which]))
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void startPlayback(File csvFile) {
+        List<PlaybackEntry> records = parseCsvForPlayback(csvFile);
+        if (records.isEmpty()) { toast("文件解析失败或无数据"); return; }
+        mPlaybackRecords.clear();
+        mPlaybackRecords.addAll(records);
+        mPlaybackIndex   = 0;
+        mIsPlaying       = false;
+
+        mCardPlayback.setVisibility(View.VISIBLE);
+        mCardCellInfo.setVisibility(View.GONE);
+        mTvPlaybackFile.setText(csvFile.getName());
+        mSeekBarPlayback.setMax(records.size() - 1);
+        mSeekBarPlayback.setProgress(0);
+        mBtnPlaybackPlayPause.setText("▶ 播放");
+
+        if (mPlaybackPath != null) { mMapView.getOverlays().remove(mPlaybackPath); mPlaybackPath = null; }
+        redrawPlaybackPath();
+
+        // Playback position marker
+        if (mPlaybackMarker != null) mMapView.getOverlays().remove(mPlaybackMarker);
+        mPlaybackMarker = new Marker(mMapView);
+        mPlaybackMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        mMapView.getOverlays().add(mPlaybackMarker);
+
+        advancePlaybackTo(0);
+        mMapView.invalidate();
+        toast("已加载 " + records.size() + " 条，点击播放开始回放");
+    }
+
+    private List<PlaybackEntry> parseCsvForPlayback(File csvFile) {
+        List<PlaybackEntry> result = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            if (br.readLine() == null) return result; // skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] p = line.split(",");
+                if (p.length < 11) continue;
+                try {
+                    long   ts  = Long.parseLong(p[0].trim());
+                    double lat = Double.parseDouble(p[1].trim());
+                    double lon = Double.parseDouble(p[2].trim());
+                    String sl  = p[4].trim();
+                    String op  = p[5].trim();
+                    String rat = p[6].trim();
+                    int rsrp = parseIntOrMax(p[7]);
+                    int rsrq = p.length > 8 ? parseIntOrMax(p[8]) : Integer.MAX_VALUE;
+                    int sinr = p.length > 9 ? parseIntOrMax(p[9]) : Integer.MAX_VALUE;
+                    int pci  = p.length > 10 ? parseIntOrMax(p[10]) : Integer.MAX_VALUE;
+                    result.add(new PlaybackEntry(ts, lat, lon, rat, rsrp, rsrq, sinr, pci, sl, op));
+                } catch (NumberFormatException ignored) {}
+            }
+        } catch (IOException ignored) {}
+        return result;
+    }
+
+    private void advancePlaybackTo(int index) {
+        if (index < 0 || index >= mPlaybackRecords.size()) return;
+        mPlaybackIndex = index;
+        PlaybackEntry e = mPlaybackRecords.get(index);
+        GeoPoint gp = new GeoPoint(e.latitude, e.longitude);
+        if (mPlaybackMarker != null) {
+            mPlaybackMarker.setPosition(gp);
+            mPlaybackMarker.setTitle(String.format(Locale.US, "%s %s RSRP:%s",
+                    e.simLabel, e.rat,
+                    e.rsrp == Integer.MAX_VALUE ? "N/A" : e.rsrp + "dBm"));
+        }
+        mMapView.getController().animateTo(gp);
+        mSeekBarPlayback.setProgress(index);
+        String ts = new SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                .format(new Date(e.timestamp));
+        mTvPlaybackTime.setText(ts + "  " + (index + 1) + " / " + mPlaybackRecords.size() + " 条");
+        mMapView.invalidate();
+    }
+
+    private void togglePlayback() {
+        if (mPlaybackRecords.isEmpty()) return;
+        mIsPlaying = !mIsPlaying;
+        mBtnPlaybackPlayPause.setText(mIsPlaying ? "⏸ 暂停" : "▶ 播放");
+        if (mIsPlaying) {
+            if (mPlaybackIndex >= mPlaybackRecords.size() - 1) mPlaybackIndex = 0;
+            mPlaybackHandler.post(mPlaybackRunnable);
+        } else {
+            mPlaybackHandler.removeCallbacks(mPlaybackRunnable);
+        }
+    }
+
+    private void cyclePlaybackSpeed() {
+        int[] speeds = {1, 2, 5, 10};
+        int idx = 0;
+        for (int i = 0; i < speeds.length; i++) {
+            if (speeds[i] == mPlaybackSpeedMult) { idx = i; break; }
+        }
+        mPlaybackSpeedMult = speeds[(idx + 1) % speeds.length];
+        mBtnPlaybackSpeed.setText(mPlaybackSpeedMult + "×");
+    }
+
+    private void resetPlayback() {
+        mPlaybackHandler.removeCallbacks(mPlaybackRunnable);
+        mIsPlaying = false;
+        mBtnPlaybackPlayPause.setText("▶ 播放");
+        if (!mPlaybackRecords.isEmpty()) advancePlaybackTo(0);
+    }
+
+    private void stopPlayback() {
+        mPlaybackHandler.removeCallbacks(mPlaybackRunnable);
+        mIsPlaying = false;
+        mPlaybackRecords.clear();
+        mPlaybackIndex = 0;
+        if (mPlaybackPath != null) {
+            mMapView.getOverlays().remove(mPlaybackPath);
+            mPlaybackPath = null;
+        }
+        for (Polyline seg : mPlaybackSegments) mMapView.getOverlays().remove(seg);
+        mPlaybackSegments.clear();
+        if (mPlaybackMarker != null) {
+            mMapView.getOverlays().remove(mPlaybackMarker);
+            mPlaybackMarker = null;
+        }
+        mCardPlayback.setVisibility(View.GONE);
+        mMapView.invalidate();
+    }
+
+    // ── Track drawing helpers ─────────────────────────────────────────────────
+
+    private static int parseIntOrMax(String s) {
+        s = s.trim();
+        return "N/A".equals(s) || s.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(s);
+    }
+
+    private void addTrackPoint(TrackPoint tp) {
+        if (!mTrackPoints.isEmpty()) {
+            TrackPoint prev = mTrackPoints.get(mTrackPoints.size() - 1);
+            Polyline seg = makeTrackSegment(prev, tp);
+            mTrackSegments.add(seg);
+            mMapView.getOverlays().add(seg);
+        }
+        mTrackPoints.add(tp);
+    }
+
+    private Polyline makeTrackSegment(TrackPoint p1, TrackPoint p2) {
+        int v1 = getMetricValue(p1, mTrackMetric);
+        int v2 = getMetricValue(p2, mTrackMetric);
+        int avg = (v1 == Integer.MAX_VALUE || v2 == Integer.MAX_VALUE)
+                ? Integer.MAX_VALUE : (v1 + v2) / 2;
+        Polyline seg = new Polyline();
+        seg.getOutlinePaint().setStrokeWidth(7f);
+        seg.getOutlinePaint().setStrokeCap(Paint.Cap.ROUND);
+        seg.getOutlinePaint().setColor(getMetricColor(avg, mTrackMetric));
+        List<GeoPoint> pts = new ArrayList<>();
+        pts.add(p1.point);
+        pts.add(p2.point);
+        seg.setPoints(pts);
+        return seg;
+    }
+
+    private int getMetricValue(TrackPoint tp, int metric) {
+        switch (metric) {
+            case METRIC_RSRP: return tp.rsrp;
+            case METRIC_SINR: return tp.sinr;
+            case METRIC_RSRQ: return tp.rsrq;
+            default:          return Integer.MAX_VALUE;
+        }
+    }
+
+    private int getMetricColor(int value, int metric) {
+        if (value == Integer.MAX_VALUE) return 0xFF888888;
+        int[] thresh;
+        int[] colors;
+        switch (metric) {
+            case METRIC_RSRP: thresh = RSRP_THRESH; colors = RSRP_COLORS; break;
+            case METRIC_SINR: thresh = SINR_THRESH; colors = SINR_COLORS; break;
+            case METRIC_RSRQ: thresh = RSRQ_THRESH; colors = RSRQ_COLORS; break;
+            default: return 0xFF888888;
+        }
+        for (int i = 0; i < thresh.length; i++) {
+            if (value >= thresh[i]) return colors[i];
+        }
+        return colors[colors.length - 1];
+    }
+
+    private void redrawTrack() {
+        for (Polyline seg : mTrackSegments) mMapView.getOverlays().remove(seg);
+        mTrackSegments.clear();
+        for (int i = 1; i < mTrackPoints.size(); i++) {
+            Polyline seg = makeTrackSegment(mTrackPoints.get(i - 1), mTrackPoints.get(i));
+            mTrackSegments.add(seg);
+            mMapView.getOverlays().add(seg);
+        }
+        mMapView.invalidate();
+    }
+
+    private void redrawPlaybackPath() {
+        for (Polyline seg : mPlaybackSegments) mMapView.getOverlays().remove(seg);
+        mPlaybackSegments.clear();
+        for (int i = 1; i < mPlaybackRecords.size(); i++) {
+            PlaybackEntry a = mPlaybackRecords.get(i - 1);
+            PlaybackEntry b = mPlaybackRecords.get(i);
+            int va = getPlaybackMetricValue(a);
+            int vb = getPlaybackMetricValue(b);
+            int avg = (va == Integer.MAX_VALUE || vb == Integer.MAX_VALUE)
+                    ? Integer.MAX_VALUE : (va + vb) / 2;
+            Polyline seg = new Polyline();
+            seg.getOutlinePaint().setStrokeWidth(5f);
+            seg.getOutlinePaint().setStrokeCap(Paint.Cap.ROUND);
+            seg.getOutlinePaint().setColor(getMetricColor(avg, mTrackMetric));
+            List<GeoPoint> pts = new ArrayList<>();
+            pts.add(new GeoPoint(a.latitude, a.longitude));
+            pts.add(new GeoPoint(b.latitude, b.longitude));
+            seg.setPoints(pts);
+            mPlaybackSegments.add(seg);
+            mMapView.getOverlays().add(seg);
+        }
+        mMapView.invalidate();
+    }
+
+    private int getPlaybackMetricValue(PlaybackEntry e) {
+        switch (mTrackMetric) {
+            case METRIC_RSRP: return e.rsrp;
+            case METRIC_SINR: return e.sinr;
+            case METRIC_RSRQ: return e.rsrq;
+            default:          return Integer.MAX_VALUE;
+        }
+    }
+
+    private void updateMetricLabel() {
+        if (mTvMetricSelect != null) mTvMetricSelect.setText(METRIC_NAMES[mTrackMetric]);
+    }
+
+    // ── WiFi layer (indoor coverage) ─────────────────────────────────────────
+
+    private void toggleWifiLayer() {
+        mShowWifiLayer = !mShowWifiLayer;
+        if (mShowWifiLayer) {
+            toast("WiFi 层已开启，每次定位时自动扫描");
+            scanAndPlotWifi(mLocationOverlay != null ? mLocationOverlay.getMyLocation() : null);
+        } else {
+            for (Marker m : mWifiMarkers) mMapView.getOverlays().remove(m);
+            mWifiMarkers.clear();
+            mMapView.invalidate();
+            toast("WiFi 层已关闭");
+        }
+    }
+
+    private void scanAndPlotWifi(GeoPoint location) {
+        if (!mShowWifiLayer || location == null) return;
+        WifiManager wm = (WifiManager) requireContext()
+                .getApplicationContext().getSystemService(android.content.Context.WIFI_SERVICE);
+        if (wm == null || !wm.isWifiEnabled()) return;
+        wm.startScan();
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            if (!isAdded() || mMapView == null) return;
+            java.util.List<ScanResult> results = wm.getScanResults();
+            if (results == null) return;
+            // Plot top-10 strongest APs at current GPS position with RSSI color
+            java.util.List<ScanResult> sorted = new java.util.ArrayList<>(results);
+            java.util.Collections.sort(sorted, (a, b) -> Integer.compare(b.level, a.level));
+            int plotCount = Math.min(sorted.size(), 10);
+            for (int i = 0; i < plotCount; i++) {
+                ScanResult r = sorted.get(i);
+                Marker m = new Marker(mMapView);
+                m.setPosition(new GeoPoint(
+                        location.getLatitude() + (i - plotCount / 2) * 0.000005,
+                        location.getLongitude()));
+                m.setIcon(makeWifiMarker(r.level));
+                m.setTitle(r.SSID.isEmpty() ? "<隐藏>" : r.SSID);
+                m.setSnippet(String.format(Locale.US, "%d dBm  Ch.%d  %s",
+                        r.level, wifiFreqToChannel(r.frequency), r.BSSID));
+                m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                mWifiMarkers.add(m);
+                mMapView.getOverlays().add(m);
+            }
+            mMapView.invalidate();
+        }, 1500);
+    }
+
+    private android.graphics.drawable.Drawable makeWifiMarker(int rssi) {
+        int sizePx = (int) dpToPx(16);
+        Bitmap bm = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bm);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        // Color by RSSI: ≥-50 green, ≥-65 yellow, ≥-75 orange, else red
+        int color = rssi >= -50 ? 0xFF00B050
+                  : rssi >= -65 ? 0xFFFFCC00
+                  : rssi >= -75 ? 0xFFFF8C00 : 0xFFFF0000;
+        p.setColor(color);
+        p.setStyle(Paint.Style.FILL);
+        c.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 1, p);
+        p.setColor(Color.WHITE);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(1.5f);
+        c.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f - 2, p);
+        return new android.graphics.drawable.BitmapDrawable(getResources(), bm);
+    }
+
+    private static int wifiFreqToChannel(int freqMhz) {
+        if (freqMhz == 2484) return 14;
+        if (freqMhz < 2484)  return (freqMhz - 2407) / 5;
+        if (freqMhz >= 5180) return (freqMhz - 5000) / 5;
+        return 0;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     private void toast(String msg) {
         if (getContext() != null)

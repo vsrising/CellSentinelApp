@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
 
     private SignalContainerFragment mSignalFragment;
     private DriveTestFragment       mDriveTestFragment;
+    private ToolsFragment           mToolsFragment;
+    private InspectFragment         mInspectFragment;
     private ProfileFragment         mProfileFragment;
     private Fragment                mCurrentFragment;
 
@@ -33,6 +38,13 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Hide system status bar on all API levels (targetSdk 35+ enforces edge-to-edge)
+        WindowInsetsControllerCompat insetsCtrl =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        insetsCtrl.hide(WindowInsetsCompat.Type.statusBars());
+        insetsCtrl.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -54,18 +66,28 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
                     .findFragmentByTag("signal");
             mDriveTestFragment = (DriveTestFragment) getSupportFragmentManager()
                     .findFragmentByTag("drivetest");
+            mToolsFragment     = (ToolsFragment) getSupportFragmentManager()
+                    .findFragmentByTag("tools");
+            mInspectFragment   = (InspectFragment) getSupportFragmentManager()
+                    .findFragmentByTag("inspect");
             mProfileFragment   = (ProfileFragment) getSupportFragmentManager()
                     .findFragmentByTag("profile");
         }
         if (mSignalFragment    == null) mSignalFragment    = new SignalContainerFragment();
         if (mDriveTestFragment == null) mDriveTestFragment = new DriveTestFragment();
+        if (mToolsFragment     == null) mToolsFragment     = new ToolsFragment();
+        if (mInspectFragment   == null) mInspectFragment   = new InspectFragment();
         if (mProfileFragment   == null) mProfileFragment   = new ProfileFragment();
 
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, mSignalFragment,    "signal")
                 .add(R.id.fragment_container, mDriveTestFragment, "drivetest")
+                .add(R.id.fragment_container, mToolsFragment,     "tools")
+                .add(R.id.fragment_container, mInspectFragment,   "inspect")
                 .add(R.id.fragment_container, mProfileFragment,   "profile")
                 .hide(mDriveTestFragment)
+                .hide(mToolsFragment)
+                .hide(mInspectFragment)
                 .hide(mProfileFragment)
                 .commitAllowingStateLoss();
 
@@ -79,8 +101,16 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
             int id = item.getItemId();
             if      (id == R.id.nav_signal)    target = mSignalFragment;
             else if (id == R.id.nav_drivetest) target = mDriveTestFragment;
+            else if (id == R.id.nav_tools)     target = mToolsFragment;
+            else if (id == R.id.nav_inspect)   target = mInspectFragment;
             else if (id == R.id.nav_profile)   target = mProfileFragment;
             else return false;
+
+            // Hide toolbar for full-screen map; show it for other tabs
+            if (getSupportActionBar() != null) {
+                if (id == R.id.nav_drivetest) getSupportActionBar().hide();
+                else getSupportActionBar().show();
+            }
 
             if (target != mCurrentFragment) {
                 getSupportFragmentManager().beginTransaction()
@@ -110,7 +140,8 @@ public class MainActivity extends AppCompatActivity implements CellSignalManager
 
     @Override
     public void onSignalUpdated() {
-        if (mSignalFragment != null) mSignalFragment.notifySignalUpdate();
+        if (mSignalFragment    != null) mSignalFragment.notifySignalUpdate();
+        if (mDriveTestFragment != null) mDriveTestFragment.updateSignalOverlay();
     }
 
     @Override

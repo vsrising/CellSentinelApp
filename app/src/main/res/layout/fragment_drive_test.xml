@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ── Full-screen Map ──────────────────────────────────────── -->
+    <!-- ── Full-screen Map ──────────────────────────────────────────── -->
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
         android:layout_width="match_parent"
@@ -13,68 +13,21 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- ── Top toolbar (layer + measure + refresh) ──────────────── -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_top"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="#DDFFFFFF">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="6dp"
-            android:gravity="center_vertical">
-
-            <Spinner
-                android:id="@+id/spinner_layer"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp" />
-
-            <Button
-                android:id="@+id/btn_measure"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="测距"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:paddingHorizontal="8dp"
-                android:layout_marginEnd="4dp" />
-
-            <Button
-                android:id="@+id/btn_refresh_cells"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="刷新基站"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:paddingHorizontal="8dp" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- ── GPS + recording status ────────────────────────────────── -->
+    <!-- ── GPS + recording status (top-left) ────────────────────────── -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_status"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/card_top"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#BBFFFFFF">
+        app:cardBackgroundColor="#F2FFFFFF">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="10dp"
@@ -82,24 +35,89 @@
 
             <TextView
                 android:id="@+id/tv_gps_status"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="等待 GPS..."
                 android:fontFamily="monospace"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:textColor="#DE000000" />
 
             <TextView
                 android:id="@+id/tv_record_count"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="已录制 0 条"
                 android:textStyle="bold"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="#DE000000" />
+
+            <TextView
+                android:id="@+id/tv_sim_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="测试: 卡2"
+                android:textSize="11sp"
+                android:textColor="#FF1565C0"
+                android:textStyle="bold"
+                android:background="#1A1565C0"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tv_metric_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="RSRP"
+                android:textSize="11sp"
+                android:textColor="#FF6A1B9A"
+                android:textStyle="bold"
+                android:background="#1A6A1B9A"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tv_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="— km/h"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#DE000000"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_live_signal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="RSRP: — dBm"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#DE000000"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="min/avg/max"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:textColor="#CC000000"
+                android:visibility="gone" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- ── Measurement result (shown only in measure mode) ──────── -->
+    <!-- ── Measurement result (centered, GONE by default) ───────────── -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_measure"
         android:layout_width="wrap_content"
@@ -109,7 +127,7 @@
         android:visibility="gone"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#EEF5F5">
+        app:cardBackgroundColor="#F2F5F5">
 
         <TextView
             android:id="@+id/tv_measure_result"
@@ -117,11 +135,63 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:textStyle="bold"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="#DE000000" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- ── Zoom buttons (right side) ─────────────────────────────── -->
+    <!-- ── Signal overlay (top-right, always visible) ──────────────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_signal_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#E6000000">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp">
+
+            <TextView
+                android:id="@+id/tv_overlay_rsrp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RSRP  —"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_overlay_sinr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SINR  —"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#FFFFFFFF" />
+
+            <TextView
+                android:id="@+id/tv_overlay_rsrq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RSRQ  —"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#FFFFFFFF" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── Zoom buttons (right side, center-vertical) ───────────────── -->
     <LinearLayout
         android:layout_width="40dp"
         android:layout_height="wrap_content"
@@ -136,9 +206,9 @@
             android:layout_height="40dp"
             android:text="+"
             android:textSize="18sp"
+            android:textColor="#DE000000"
             android:textAllCaps="false"
             android:padding="0dp"
-            android:onClick="zoomIn"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_marginBottom="2dp" />
 
@@ -148,26 +218,38 @@
             android:layout_height="40dp"
             android:text="−"
             android:textSize="18sp"
+            android:textColor="#DE000000"
             android:textAllCaps="false"
             android:padding="0dp"
-            android:onClick="zoomOut"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_marginBottom="2dp" />
+
+        <Button
+            android:id="@+id/btn_locate"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="⊙"
+            android:textSize="16sp"
+            android:textColor="#DE000000"
+            android:textAllCaps="false"
+            android:padding="0dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     </LinearLayout>
 
-    <!-- ── Serving cell info (bottom-left, above action bar) ───────── -->
+    <!-- ── Serving cell info (bottom-left, above compass) ───────────── -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_cell_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/bar_bottom"
         android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="8dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginBottom="88dp"
         android:visibility="gone"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#D8F0F4FF">
+        app:cardBackgroundColor="#F2F4F8FF">
 
         <TextView
             android:id="@+id/tv_cell_info"
@@ -178,62 +260,264 @@
             android:fontFamily="monospace"
             android:textSize="10.5sp"
             android:lineSpacingExtra="1.5dp"
-            android:textColor="#CC000000" />
+            android:textColor="#DE000000" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- ── Bottom action bar ──────────────────────────────────────── -->
-    <LinearLayout
-        android:id="@+id/bar_bottom"
+    <!-- ── Playback controls (above compass, GONE by default) ────────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_playback"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#EEF5F5F5"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="88dp"
+        android:visibility="gone"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#F2FFFFFF">
 
-        <Button
-            android:id="@+id/btn_start_stop"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="2"
-            android:text="开始路测"
-            android:textAllCaps="false"
-            android:textSize="13sp"
-            android:layout_marginEnd="4dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-        <Button
-            android:id="@+id/btn_export"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:text="导出"
-            android:textAllCaps="false"
-            android:textSize="12sp"
-            android:layout_marginEnd="4dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <Button
-            android:id="@+id/btn_upload"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:text="上报"
-            android:textAllCaps="false"
-            android:textSize="12sp"
-            android:layout_marginEnd="4dp" />
+                <TextView
+                    android:id="@+id/tv_playback_file"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="11sp"
+                    android:textColor="#DE000000"
+                    android:singleLine="true"
+                    android:ellipsize="start"
+                    android:text="未选择文件" />
 
-        <Button
-            android:id="@+id/btn_clear"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:text="清除"
-            android:textAllCaps="false"
-            android:textSize="12sp" />
+                <Button
+                    android:id="@+id/btn_playback_close"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:text="✕"
+                    android:textSize="14sp"
+                    android:textColor="#99000000"
+                    android:padding="0dp" />
 
-    </LinearLayout>
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_playback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="4dp" />
+
+            <TextView
+                android:id="@+id/tv_playback_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#99000000"
+                android:gravity="center"
+                android:text="0 / 0 条" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="4dp">
+
+                <Button
+                    android:id="@+id/btn_playback_prev"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="44dp"
+                    android:layout_height="36dp"
+                    android:text="⏮"
+                    android:textSize="14sp"
+                    android:padding="0dp"
+                    android:textColor="#DE000000"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btn_playback_play_pause"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="▶ 播放"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btn_playback_speed"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="1×"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:textColor="#DE000000" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ── Mini signal chart (visible during recording) ───────────── -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_mini_chart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="88dp"
+        android:layout_marginBottom="96dp"
+        android:visibility="gone"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#E8FFFFFF">
+
+        <com.asun.cellsentinelapp.SignalChartView
+            android:id="@+id/mini_chart"
+            android:layout_width="match_parent"
+            android:layout_height="110dp" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         COMPASS – all items anchored bottom-right;
+         child buttons animate outward when expanded.
+         ══════════════════════════════════════════════════════════════ -->
+
+    <!-- Compass disc background (appears when expanded) -->
+    <View
+        android:id="@+id/compass_disc"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="-28dp"
+        android:layout_marginBottom="-28dp"
+        android:background="@drawable/bg_compass_disc"
+        android:alpha="0"
+        android:visibility="invisible" />
+
+    <!-- Child FAB: 开始/停止路测  (angle 90° = directly above) -->
+    <Button
+        android:id="@+id/fab_start_stop"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="开始\n路测"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFFFF"
+        android:textSize="10sp"
+        android:lineSpacingMultiplier="1.1"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_item"
+        android:elevation="8dp"
+        android:visibility="invisible" />
+
+    <!-- Child FAB: 测距  (angle 112.5°) -->
+    <Button
+        android:id="@+id/fab_measure"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="22dp"
+        android:text="测距"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFFFF"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_item"
+        android:elevation="8dp"
+        android:visibility="invisible" />
+
+    <!-- Child FAB: 刷新基站  (angle 135°) -->
+    <Button
+        android:id="@+id/fab_refresh"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="22dp"
+        android:text="刷新\n基站"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFFFF"
+        android:textSize="10sp"
+        android:lineSpacingMultiplier="1.1"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_item"
+        android:elevation="8dp"
+        android:visibility="invisible" />
+
+    <!-- Child FAB: 图层切换  (angle 157.5°) -->
+    <Button
+        android:id="@+id/fab_layer"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="22dp"
+        android:text="地图\n图层"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFFFF"
+        android:textSize="10sp"
+        android:lineSpacingMultiplier="1.1"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_item"
+        android:elevation="8dp"
+        android:visibility="invisible" />
+
+    <!-- Child FAB: 更多  (angle 180° = directly left) -->
+    <Button
+        android:id="@+id/fab_more"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="22dp"
+        android:layout_marginBottom="22dp"
+        android:text="更多"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFFFF"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_item"
+        android:elevation="8dp"
+        android:visibility="invisible" />
+
+    <!-- Main compass button (always visible) -->
+    <Button
+        android:id="@+id/fab_main"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="☰"
+        android:textAllCaps="false"
+        android:textColor="#FF000000"
+        android:textSize="22sp"
+        android:gravity="center"
+        android:background="@drawable/bg_compass_main"
+        android:elevation="12dp" />
 
 </RelativeLayout>

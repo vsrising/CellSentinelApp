@@ -11,8 +11,11 @@ public class SettingUtils {
     private static final String KEY_USERNAME           = "username";
     private static final String KEY_NICK_NAME          = "nick_name";
     private static final String KEY_NEED_CACHE_REFRESH = "need_cache_refresh";
+    private static final String KEY_SAVED_USERNAME     = "saved_username";
+    private static final String KEY_SAVED_PASSWORD     = "saved_password";
 
-    public static final String DEFAULT_SERVER_URL = "http://192.168.202.19:8080";
+    public static final String DEFAULT_SERVER_URL        = "http://192.168.8.152:8080";
+    private static final String KEY_BACKUP_SERVER_URL   = "backup_server_url";
 
     private static SharedPreferences prefs(Context ctx) {
         return ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -24,6 +27,24 @@ public class SettingUtils {
 
     public static void setServerUrl(Context ctx, String url) {
         prefs(ctx).edit().putString(KEY_SERVER_URL, url.trim()).apply();
+    }
+
+    public static String getBackupServerUrl(Context ctx) {
+        return prefs(ctx).getString(KEY_BACKUP_SERVER_URL, "");
+    }
+
+    public static void setBackupServerUrl(Context ctx, String url) {
+        prefs(ctx).edit().putString(KEY_BACKUP_SERVER_URL, url.trim()).apply();
+    }
+
+    /**
+     * Returns the effective server URL to use. If primary is reachable (non-empty) it is
+     * returned; otherwise the backup URL is returned. Callers that want automatic failover
+     * should use {@link #getEffectiveServerUrl(Context, Runnable)} instead.
+     */
+    public static String getPrimaryOrBackupUrl(Context ctx) {
+        String primary = getServerUrl(ctx);
+        return primary.isEmpty() ? getBackupServerUrl(ctx) : primary;
     }
 
     public static String getToken(Context ctx) {
@@ -64,5 +85,31 @@ public class SettingUtils {
 
     public static void setNeedCacheRefresh(Context ctx, boolean need) {
         prefs(ctx).edit().putBoolean(KEY_NEED_CACHE_REFRESH, need).apply();
+    }
+
+    public static String getSavedUsername(Context ctx) {
+        return prefs(ctx).getString(KEY_SAVED_USERNAME, "");
+    }
+
+    public static String getSavedPassword(Context ctx) {
+        return prefs(ctx).getString(KEY_SAVED_PASSWORD, "");
+    }
+
+    public static boolean hasSavedCredentials(Context ctx) {
+        return !prefs(ctx).getString(KEY_SAVED_USERNAME, "").isEmpty();
+    }
+
+    public static void saveLoginCredentials(Context ctx, String username, String password) {
+        prefs(ctx).edit()
+                .putString(KEY_SAVED_USERNAME, username)
+                .putString(KEY_SAVED_PASSWORD, password)
+                .apply();
+    }
+
+    public static void clearSavedCredentials(Context ctx) {
+        prefs(ctx).edit()
+                .remove(KEY_SAVED_USERNAME)
+                .remove(KEY_SAVED_PASSWORD)
+                .apply();
     }
 }

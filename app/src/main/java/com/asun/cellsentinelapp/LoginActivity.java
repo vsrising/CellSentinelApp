@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -12,16 +13,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText   mEtUsername;
-    private EditText   mEtPassword;
-    private EditText   mEtCaptcha;
-    private ImageView  mIvCaptcha;
-    private Button     mBtnLogin;
+    private EditText    mEtUsername;
+    private EditText    mEtPassword;
+    private EditText    mEtCaptcha;
+    private ImageView   mIvCaptcha;
+    private Button      mBtnLogin;
     private ProgressBar mProgress;
-    private TextView   mTvError;
+    private TextView    mTvError;
+    private CheckBox    mCbRemember;
 
     private String mCaptchaUuid = "";
 
@@ -29,6 +34,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        WindowInsetsControllerCompat insetsCtrl =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        insetsCtrl.hide(WindowInsetsCompat.Type.statusBars());
+        insetsCtrl.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
         Toolbar toolbar = findViewById(R.id.toolbar_login);
         setSupportActionBar(toolbar);
@@ -44,6 +55,14 @@ public class LoginActivity extends AppCompatActivity {
         mBtnLogin   = findViewById(R.id.btn_do_login);
         mProgress   = findViewById(R.id.login_progress);
         mTvError    = findViewById(R.id.tv_login_error);
+        mCbRemember = findViewById(R.id.cb_remember);
+
+        // Pre-fill saved credentials
+        if (SettingUtils.hasSavedCredentials(this)) {
+            mEtUsername.setText(SettingUtils.getSavedUsername(this));
+            mEtPassword.setText(SettingUtils.getSavedPassword(this));
+            mCbRemember.setChecked(true);
+        }
 
         mIvCaptcha.setOnClickListener(v -> loadCaptcha());
         mBtnLogin.setOnClickListener(v -> doLogin());
@@ -67,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
                 mIvCaptcha.setImageBitmap(image);
                 mIvCaptcha.setAlpha(1.0f);
                 mEtCaptcha.setText("");
-                // Re-show in case a previous error had hidden them
                 mIvCaptcha.setVisibility(View.VISIBLE);
                 ((View) mEtCaptcha.getParent().getParent()).setVisibility(View.VISIBLE);
                 mTvError.setVisibility(View.GONE);
@@ -75,13 +93,11 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onDisabled() {
-                // Server has captcha turned off — hide the row entirely
                 hideCaptchaRow();
             }
 
             @Override
             public void onError(String msg) {
-                // Network error or wrong URL — keep captcha visible so user can tap to retry
                 mIvCaptcha.setAlpha(1.0f);
                 mIvCaptcha.setImageResource(android.R.drawable.ic_menu_rotate);
                 showError("验证码加载失败，点击图片重试");
@@ -89,13 +105,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Called when server confirms captcha is disabled.
-     * Hides the captcha row completely so the user doesn't need to fill it in.
-     */
     private void hideCaptchaRow() {
         mIvCaptcha.setVisibility(View.GONE);
-        // Hide the TextInputLayout wrapper (grandparent of TextInputEditText)
         View inputLayout = (View) mEtCaptcha.getParent().getParent();
         if (inputLayout != null) inputLayout.setVisibility(View.GONE);
     }
@@ -118,6 +129,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String token) {
                         setLoading(false);
+                        if (mCbRemember.isChecked()) {
+                            SettingUtils.saveLoginCredentials(LoginActivity.this, username, password);
+                        } else {
+                            SettingUtils.clearSavedCredentials(LoginActivity.this);
+                        }
                         SettingUtils.setNeedCacheRefresh(LoginActivity.this, true);
                         RuoyiApi.getInfo(LoginActivity.this, new RuoyiApi.UserInfoCallback() {
                             @Override

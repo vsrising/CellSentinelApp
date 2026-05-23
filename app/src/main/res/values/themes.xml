@@ -17,5 +17,25 @@
     <style name="Theme.CellSentinelApp.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- Cell info card label/value styles -->
+    <style name="CellLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textColor">#99000000</item>
+        <item name="android:layout_marginEnd">3dp</item>
+    </style>
+
+    <style name="CellValue">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#DE000000</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:layout_marginEnd">8dp</item>
     </style>
 </resources>
