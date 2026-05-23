@@ -1,27 +1,16 @@
-# CellSentinelApp
+﻿# CellSentinelApp
 
-## 中文说明
+## 涓枃璇存槑
 
-CellSentinelApp 是一款面向 Android 设备的蜂窝网络监测、路测和现场排障工具。它可以读取手机当前的移动网络状态，展示 LTE / 5G NR / WCDMA / GSM 等网络的关键无线指标，并结合地图、GPS、Wi-Fi、测速和日志能力，帮助用户观察网络覆盖、信号质量和移动过程中的网络变化。
+CellSentinelApp 鏄竴娆鹃潰鍚?Android 璁惧鐨勮渹绐濈綉缁滅洃娴嬨€佽矾娴嬪拰鐜板満鎺掗殰宸ュ叿銆傚畠鍙互璇诲彇鎵嬫満褰撳墠鐨勭Щ鍔ㄧ綉缁滅姸鎬侊紝灞曠ず LTE / 5G NR / WCDMA / GSM 绛夌綉缁滅殑鍏抽敭鏃犵嚎鎸囨爣锛屽苟缁撳悎鍦板浘銆丟PS銆乄i-Fi銆佹祴閫熷拰鏃ュ織鑳藉姏锛屽府鍔╃敤鎴疯瀵熺綉缁滆鐩栥€佷俊鍙疯川閲忓拰绉诲姩杩囩▼涓殑缃戠粶鍙樺寲銆?
+### 涓昏鍔熻兘
 
-### 主要功能
-
-- 实时蜂窝信号监测：展示 RSRP、RSRQ、SINR、PCI、CI、TAC、MCC/MNC、EARFCN/NRARFCN、频段等信息。
-- 多 SIM 卡支持：根据设备能力展示不同 SIM 卡的网络与信号数据。
-- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113557_CellSentinelApp.jpg)
-- 路测记录：基于 GPS 记录移动轨迹和信号采样点，支持按 RSRP、SINR、RSRQ 进行颜色分级显示。
-- 地图展示：集成 osmdroid，支持 OSM、ESRI 卫星、Google 卫星、高德卫星等图层。
-- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113618_CellSentinelApp.jpg)
-- 数据导出与回放：路测数据可导出 CSV / KML，并支持 CSV 路测记录回放。
-- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113641_CellSentinelApp.jpg)
-- Wi-Fi 信息：查看当前连接信息、扫描周边 Wi-Fi，并可在路测地图上叠加 Wi-Fi 点位。
-- 设备与位置信息：查看 Android 设备、定位和网络相关信息。
-- 信令事件日志：基于 Android Telephony API 记录服务状态、RAT 变化、PCI 变化、信号强度变化等事件，并支持 CSV 导出。
-- 网络测速：支持公网测速和自定义服务器测速。
-- 服务端对接：支持配置主服务器和备用服务器，并可上传信号快照、路测记录等数据。
-- 支持自定义智能体分析功能，能导出pdf分析报告。![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113928_CellSentinelApp.jpg)
+- 瀹炴椂铚傜獫淇″彿鐩戞祴锛氬睍绀?RSRP銆丷SRQ銆丼INR銆丳CI銆丆I銆乀AC銆丮CC/MNC銆丒ARFCN/NRARFCN銆侀娈电瓑淇℃伅銆?- 澶?SIM 鍗℃敮鎸侊細鏍规嵁璁惧鑳藉姏灞曠ず涓嶅悓 SIM 鍗＄殑缃戠粶涓庝俊鍙锋暟鎹€?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113557_CellSentinelApp.jpg)
+- 璺祴璁板綍锛氬熀浜?GPS 璁板綍绉诲姩杞ㄨ抗鍜屼俊鍙烽噰鏍风偣锛屾敮鎸佹寜 RSRP銆丼INR銆丷SRQ 杩涜棰滆壊鍒嗙骇鏄剧ず銆?- 鍦板浘灞曠ず锛氶泦鎴?osmdroid锛屾敮鎸?OSM銆丒SRI 鍗槦銆丟oogle 鍗槦銆侀珮寰峰崼鏄熺瓑鍥惧眰銆?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113618_CellSentinelApp.jpg)
+- 鏁版嵁瀵煎嚭涓庡洖鏀撅細璺祴鏁版嵁鍙鍑?CSV / KML锛屽苟鏀寔 CSV 璺祴璁板綍鍥炴斁銆?- ![](app/src/main/res/drawable/author/Screenshot_20260523_113641_CellSentinelApp.jpg)
+- Wi-Fi 淇℃伅锛氭煡鐪嬪綋鍓嶈繛鎺ヤ俊鎭€佹壂鎻忓懆杈?Wi-Fi锛屽苟鍙湪璺祴鍦板浘涓婂彔鍔?Wi-Fi 鐐逛綅銆?- 璁惧涓庝綅缃俊鎭細鏌ョ湅 Android 璁惧銆佸畾浣嶅拰缃戠粶鐩稿叧淇℃伅銆?- 淇′护浜嬩欢鏃ュ織锛氬熀浜?Android Telephony API 璁板綍鏈嶅姟鐘舵€併€丷AT 鍙樺寲銆丳CI 鍙樺寲銆佷俊鍙峰己搴﹀彉鍖栫瓑浜嬩欢锛屽苟鏀寔 CSV 瀵煎嚭銆?- 缃戠粶娴嬮€燂細鏀寔鍏綉娴嬮€熷拰鑷畾涔夋湇鍔″櫒娴嬮€熴€?- 鏈嶅姟绔鎺ワ細鏀寔閰嶇疆涓绘湇鍔″櫒鍜屽鐢ㄦ湇鍔″櫒锛屽苟鍙笂浼犱俊鍙峰揩鐓с€佽矾娴嬭褰曠瓑鏁版嵁銆?- 鏀寔鑷畾涔夋櫤鑳戒綋鍒嗘瀽鍔熻兘锛岃兘瀵煎嚭pdf鍒嗘瀽鎶ュ憡銆?![](app/src/main/res/drawable/author/Screenshot_20260523_113928_CellSentinelApp.jpg)
   
-  ### 技术栈
+  ### 鎶€鏈爤
 
 - Android Java
 - Gradle Kotlin DSL
@@ -30,29 +19,20 @@ CellSentinelApp 是一款面向 Android 设备的蜂窝网络监测、路测和�
 - osmdroid
 - JUnit / Espresso
 
-### 构建与运行
-
-1. 使用 Android Studio 打开项目根目录。
-2. 等待 Gradle 同步完成。
-3. 连接 Android 设备或启动模拟器。
-4. 运行 `app` 模块。
-
-也可以使用命令行构建：
-
+### 鏋勫缓涓庤繍琛?
+1. 浣跨敤 Android Studio 鎵撳紑椤圭洰鏍圭洰褰曘€?2. 绛夊緟 Gradle 鍚屾瀹屾垚銆?3. 杩炴帴 Android 璁惧鎴栧惎鍔ㄦā鎷熷櫒銆?4. 杩愯 `app` 妯″潡銆?
+涔熷彲浠ヤ娇鐢ㄥ懡浠よ鏋勫缓锛?
 ```powershell
 .\gradlew.bat assembleDebug
 ```
 
-### 权限说明
+### 鏉冮檺璇存槑
 
-应用会请求位置、电话状态、网络访问、Wi-Fi 状态等权限。这些权限用于读取蜂窝网络信息、记录路测轨迹、扫描 Wi-Fi、访问地图瓦片、测速和上传数据。
+搴旂敤浼氳姹備綅缃€佺數璇濈姸鎬併€佺綉缁滆闂€乄i-Fi 鐘舵€佺瓑鏉冮檺銆傝繖浜涙潈闄愮敤浜庤鍙栬渹绐濈綉缁滀俊鎭€佽褰曡矾娴嬭建杩广€佹壂鎻?Wi-Fi銆佽闂湴鍥剧摝鐗囥€佹祴閫熷拰涓婁紶鏁版嵁銆?
+### 鑳藉姏杈圭晫
 
-### 能力边界
-
-当前“信令事件日志”功能记录的是 Android 系统公开接口可获得的网络状态事件，例如服务状态变化、LTE/NR/UMTS/GSM 等网络类型变化、基于 PCI 变化推断的切换事件，以及 RSRP 变化事件。它不是 LTE/NR 协议栈信令解析器，不能解析完整的 RRC、NAS、MAC、RLC、PDCP 或基带原始信令消息。
-
-如需完整 LTE/NR 信令分析，通常需要工程机、root/厂商权限、Qualcomm DIAG/QXDM/QCAT、modem log、Radio HAL/vendor 私有接口，或基站侧/测试仪表日志等更底层的数据源。
-
+褰撳墠鈥滀俊浠や簨浠舵棩蹇椻€濆姛鑳借褰曠殑鏄?Android 绯荤粺鍏紑鎺ュ彛鍙幏寰楃殑缃戠粶鐘舵€佷簨浠讹紝渚嬪鏈嶅姟鐘舵€佸彉鍖栥€丩TE/NR/UMTS/GSM 绛夌綉缁滅被鍨嬪彉鍖栥€佸熀浜?PCI 鍙樺寲鎺ㄦ柇鐨勫垏鎹簨浠讹紝浠ュ強 RSRP 鍙樺寲浜嬩欢銆傚畠涓嶆槸 LTE/NR 鍗忚鏍堜俊浠よВ鏋愬櫒锛屼笉鑳借В鏋愬畬鏁寸殑 RRC銆丯AS銆丮AC銆丷LC銆丳DCP 鎴栧熀甯﹀師濮嬩俊浠ゆ秷鎭€?
+濡傞渶瀹屾暣 LTE/NR 淇′护鍒嗘瀽锛岄€氬父闇€瑕佸伐绋嬫満銆乺oot/鍘傚晢鏉冮檺銆丵ualcomm DIAG/QXDM/QCAT銆乵odem log銆丷adio HAL/vendor 绉佹湁鎺ュ彛锛屾垨鍩虹珯渚?娴嬭瘯浠〃鏃ュ織绛夋洿搴曞眰鐨勬暟鎹簮銆?
 ## English
 
 CellSentinelApp is an Android field tool for cellular network monitoring, drive testing, and on-site troubleshooting. It reads the current mobile network state from the device, displays key radio metrics for LTE, 5G NR, WCDMA, and GSM, and combines maps, GPS, Wi-Fi, speed tests, and logs to help users understand coverage, signal quality, and network changes while moving.
@@ -102,14 +82,15 @@ The current signaling event log records network-state events exposed by Android 
 
 Full LTE/NR signaling analysis usually requires lower-level data sources such as engineering devices, root/vendor privileges, Qualcomm DIAG/QXDM/QCAT, modem logs, Radio HAL/vendor private interfaces, or base-station/test-equipment logs.
 
-## 联系作者 / Contact
+## 鑱旂郴浣滆€?/ Contact
 
-微信二维码 / WeChat QR Code:
+寰俊浜岀淮鐮?/ WeChat QR Code:
 
 ![WeChat QR Code](app/src/main/res/drawable/author/authorwechat.png)
 
-## 开源声明 / Open Source Notice
+## 寮€婧愬０鏄?/ Open Source Notice
 
-本项目采用 Apache License 2.0 开源。任何人都可以自由使用、复制、修改、分发和用于学习、研究或商业场景，但请遵守仓库中的 `LICENSE` 文件。
-
+鏈」鐩噰鐢?Apache License 2.0 寮€婧愩€備换浣曚汉閮藉彲浠ヨ嚜鐢变娇鐢ㄣ€佸鍒躲€佷慨鏀广€佸垎鍙戝拰鐢ㄤ簬瀛︿範銆佺爺绌舵垨鍟嗕笟鍦烘櫙锛屼絾璇烽伒瀹堜粨搴撲腑鐨?`LICENSE` 鏂囦欢銆?
 This project is open source under the Apache License 2.0. Anyone may use, copy, modify, distribute, and apply it for learning, research, or commercial purposes, subject to the `LICENSE` file in this repository.
+
+

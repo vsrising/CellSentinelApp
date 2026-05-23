@@ -400,7 +400,7 @@
         app:cardElevation="4dp"
         app:cardBackgroundColor="#E8FFFFFF">
 
-        <com.asun.cellsentinelapp.SignalChartView
+        <com.asun.cellsentinelapp.view.SignalChartView
             android:id="@+id/mini_chart"
             android:layout_width="match_parent"
             android:layout_height="110dp" />

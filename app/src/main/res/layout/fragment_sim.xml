@@ -55,20 +55,20 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp">
 
-            <com.asun.cellsentinelapp.SignalGaugeView
+            <com.asun.cellsentinelapp.view.SignalGaugeView
                 android:id="@+id/gauge_rsrp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <com.asun.cellsentinelapp.SignalGaugeView
+            <com.asun.cellsentinelapp.view.SignalGaugeView
                 android:id="@+id/gauge_sinr"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp" />
 
-            <com.asun.cellsentinelapp.SignalGaugeView
+            <com.asun.cellsentinelapp.view.SignalGaugeView
                 android:id="@+id/gauge_rsrq"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -170,7 +170,7 @@
                     android:textColor="#99000000"
                     android:layout_marginBottom="4dp" />
 
-                <com.asun.cellsentinelapp.SignalChartView
+                <com.asun.cellsentinelapp.view.SignalChartView
                     android:id="@+id/chart_signal"
                     android:layout_width="match_parent"
                     android:layout_height="160dp" />
