@@ -112,4 +112,31 @@ public class SettingUtils {
                 .remove(KEY_SAVED_PASSWORD)
                 .apply();
     }
+
+    // ── Hermes AI agent settings ──────────────────────────────────────────────
+    private static final String KEY_HERMES_URL   = "hermes_url";
+    private static final String KEY_HERMES_TOKEN = "hermes_token";
+    private static final String KEY_HERMES_MODEL = "hermes_model";
+
+    public static final String DEFAULT_HERMES_URL   = "http://100.99.178.106:8642";
+    public static final String DEFAULT_HERMES_TOKEN = "yulanrui";
+
+    public static String getHermesUrl(Context ctx) {
+        return prefs(ctx).getString(KEY_HERMES_URL, DEFAULT_HERMES_URL);
+    }
+    public static void setHermesUrl(Context ctx, String url) {
+        prefs(ctx).edit().putString(KEY_HERMES_URL, url.trim()).apply();
+    }
+    public static String getHermesToken(Context ctx) {
+        return prefs(ctx).getString(KEY_HERMES_TOKEN, DEFAULT_HERMES_TOKEN);
+    }
+    public static void setHermesToken(Context ctx, String token) {
+        prefs(ctx).edit().putString(KEY_HERMES_TOKEN, token.trim()).apply();
+    }
+    public static String getHermesModel(Context ctx) {
+        return prefs(ctx).getString(KEY_HERMES_MODEL, "");
+    }
+    public static void setHermesModel(Context ctx, String model) {
+        prefs(ctx).edit().putString(KEY_HERMES_MODEL, model.trim()).apply();
+    }
 }

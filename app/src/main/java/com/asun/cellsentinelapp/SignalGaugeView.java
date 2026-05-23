@@ -93,7 +93,7 @@ public class SignalGaugeView extends View {
         mValPaint.setTextAlign(Paint.Align.CENTER);
         mValPaint.setTextSize(w * 0.22f);
         mValPaint.setFakeBoldText(true);
-        mValPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFFAAAAAA : 0xFF212121);
+        mValPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFFAAAAAA : 0xFFFFFFFF);
         canvas.drawText(valStr, cx, cy + w * 0.08f, mValPaint);
 
         // Unit text below value
@@ -106,7 +106,7 @@ public class SignalGaugeView extends View {
         mLblPaint.setTextAlign(Paint.Align.CENTER);
         mLblPaint.setTextSize(w * 0.13f);
         mLblPaint.setFakeBoldText(true);
-        mLblPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFF999999 : mArcColor);
+        mLblPaint.setColor(mValue == Integer.MAX_VALUE ? 0xFFFFFFFF : mArcColor);
         canvas.drawText(mLabel, cx, w - w * 0.03f, mLblPaint);
     }
 }
