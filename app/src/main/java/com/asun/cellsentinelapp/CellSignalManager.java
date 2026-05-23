@@ -35,6 +35,33 @@ public class CellSignalManager {
         void onSignalUpdated();
     }
 
+    /** Structured neighbor cell measurement. */
+    public static class NeighborCell {
+        public final String rat;
+        public final int    pci;
+        public final int    earfcn;
+        public final int    rsrp;
+        public final int    rsrq;
+        public final int    sinr;
+
+        NeighborCell(String rat, int pci, int earfcn, int rsrp, int rsrq, int sinr) {
+            this.rat = rat; this.pci = pci; this.earfcn = earfcn;
+            this.rsrp = rsrp; this.rsrq = rsrq; this.sinr = sinr;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.US,
+                    "%-5s PCI:%-5s EARFCN:%-7s RSRP:%-7s RSRQ:%-6s%s",
+                    rat, nc(pci),  nc(earfcn),
+                    rsrp == Integer.MAX_VALUE ? "N/A" : rsrp + "dBm",
+                    rsrq == Integer.MAX_VALUE ? "N/A" : rsrq + "dB",
+                    sinr != Integer.MAX_VALUE ? "  SINR:" + sinr + "dB" : "");
+        }
+
+        private static String nc(int v) { return v == Integer.MAX_VALUE ? "N/A" : String.valueOf(v); }
+    }
+
     public static class SimSignalData {
         public final int subscriptionId;
         public final String simLabel;
@@ -51,12 +78,21 @@ public class CellSignalManager {
         public int lte_RSRQ   = Integer.MAX_VALUE;
         public int lte_SINR   = Integer.MAX_VALUE;
 
+        // LTE additional metrics
+        public int lte_TA        = Integer.MAX_VALUE;  // Timing Advance (each unit ≈78m one-way)
+        public int lte_CQI       = Integer.MAX_VALUE;  // Channel Quality Indicator (0-15)
+        public int lte_bandwidth = Integer.MAX_VALUE;  // Channel bandwidth in kHz (API 28+)
+
         // NR (5G)
         public int nr_PCI     = Integer.MAX_VALUE;
         public int nr_NRARFCN = Integer.MAX_VALUE;
         public int nr_SSRSRP  = Integer.MAX_VALUE;
         public int nr_SSRSRQ  = Integer.MAX_VALUE;
         public int nr_SSSINR  = Integer.MAX_VALUE;
+        public int nr_TAC     = Integer.MAX_VALUE;
+        public int nr_CSIRSRP = Integer.MAX_VALUE;
+        public int nr_CSIRSRQ = Integer.MAX_VALUE;
+        public int nr_CSISINR = Integer.MAX_VALUE;
 
         // WCDMA
         public int wcdma_MCC  = Integer.MAX_VALUE;
@@ -80,7 +116,8 @@ public class CellSignalManager {
         public int cdma_RxPwr = Integer.MAX_VALUE;
         public int cdma_EcIo  = Integer.MAX_VALUE;
 
-        public final List<String> neighborCells = new ArrayList<>();
+        public final List<String>       neighborCells    = new ArrayList<>();
+        public final List<NeighborCell> neighborCellData = new ArrayList<>();
 
         SimSignalData(int subId, String label) {
             this.subscriptionId = subId;
@@ -247,6 +284,7 @@ public class CellSignalManager {
 
         private void parseCellInfoList(List<CellInfo> list) {
             mData.neighborCells.clear();
+            mData.neighborCellData.clear();
 
             for (CellInfo cellInfo : list) {
                 if (cellInfo.isRegistered()) {
@@ -261,8 +299,11 @@ public class CellSignalManager {
                     }
                     parseServingCell(cellInfo);
                 } else {
-                    String summary = formatNeighborCell(cellInfo);
-                    if (summary != null) mData.neighborCells.add(summary);
+                    NeighborCell nc = buildNeighborCell(cellInfo);
+                    if (nc != null) {
+                        mData.neighborCellData.add(nc);
+                        mData.neighborCells.add(nc.toString());
+                    }
                 }
             }
         }
@@ -282,7 +323,7 @@ public class CellSignalManager {
             }
         }
 
-        private String formatNeighborCell(CellInfo cellInfo) {
+        private NeighborCell buildNeighborCell(CellInfo cellInfo) {
             if (cellInfo instanceof CellInfoLte) {
                 CellInfoLte lte = (CellInfoLte) cellInfo;
                 int pci    = lte.getCellIdentity().getPci();
@@ -290,36 +331,30 @@ public class CellSignalManager {
                 int rsrp   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                         ? lte.getCellSignalStrength().getRsrp()
                         : lte.getCellSignalStrength().getDbm();
-                return String.format(Locale.US, "LTE   PCI:%-5s EARFCN:%-7s RSRP:%s dBm",
-                        fmt(pci), fmt(earfcn), fmt(rsrp));
+                int rsrq   = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        ? lte.getCellSignalStrength().getRsrq() : Integer.MAX_VALUE;
+                return new NeighborCell("LTE", pci, earfcn, rsrp, rsrq, Integer.MAX_VALUE);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                     && cellInfo instanceof android.telephony.CellInfoNr) {
-                return formatNeighborNr((android.telephony.CellInfoNr) cellInfo);
+                android.telephony.CellInfoNr nr = (android.telephony.CellInfoNr) cellInfo;
+                android.telephony.CellIdentityNr id =
+                        (android.telephony.CellIdentityNr) nr.getCellIdentity();
+                android.telephony.CellSignalStrengthNr ss =
+                        (android.telephony.CellSignalStrengthNr) nr.getCellSignalStrength();
+                return new NeighborCell("NR", id.getPci(), id.getNrarfcn(),
+                        ss.getSsRsrp(), ss.getSsRsrq(), ss.getSsSinr());
             } else if (cellInfo instanceof CellInfoWcdma) {
                 CellInfoWcdma w = (CellInfoWcdma) cellInfo;
-                int psc    = w.getCellIdentity().getPsc();
-                int uarfcn = w.getCellIdentity().getUarfcn();
-                int rssi   = w.getCellSignalStrength().getDbm();
-                return String.format(Locale.US, "WCDMA PSC:%-5s UARFCN:%-7s RSSI:%s dBm",
-                        fmt(psc), fmt(uarfcn), fmt(rssi));
+                return new NeighborCell("WCDMA", w.getCellIdentity().getPsc(),
+                        w.getCellIdentity().getUarfcn(),
+                        w.getCellSignalStrength().getDbm(), Integer.MAX_VALUE, Integer.MAX_VALUE);
             } else if (cellInfo instanceof CellInfoGsm) {
                 CellInfoGsm g = (CellInfoGsm) cellInfo;
-                int arfcn = g.getCellIdentity().getArfcn();
-                int rssi  = g.getCellSignalStrength().getDbm();
-                return String.format(Locale.US, "GSM   ARFCN:%-7s RSSI:%s dBm",
-                        fmt(arfcn), fmt(rssi));
+                return new NeighborCell("GSM", Integer.MAX_VALUE,
+                        g.getCellIdentity().getArfcn(),
+                        g.getCellSignalStrength().getDbm(), Integer.MAX_VALUE, Integer.MAX_VALUE);
             }
             return null;
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.Q)
-        private String formatNeighborNr(android.telephony.CellInfoNr cellInfo) {
-            android.telephony.CellIdentityNr id =
-                    (android.telephony.CellIdentityNr) cellInfo.getCellIdentity();
-            android.telephony.CellSignalStrengthNr ss =
-                    (android.telephony.CellSignalStrengthNr) cellInfo.getCellSignalStrength();
-            return String.format(Locale.US, "NR    PCI:%-5s NRARFCN:%-7s SS-RSRP:%s dBm",
-                    fmt(id.getPci()), fmt(id.getNrarfcn()), fmt(ss.getSsRsrp()));
         }
 
         private void parseLte(CellInfoLte info) {
@@ -329,6 +364,9 @@ public class CellSignalManager {
             mData.lte_PCI    = info.getCellIdentity().getPci();
             mData.lte_TAC    = info.getCellIdentity().getTac();
             mData.lte_EARFCN = info.getCellIdentity().getEarfcn();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                try { mData.lte_bandwidth = info.getCellIdentity().getBandwidth(); } catch (Exception ignored) {}
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 mData.lte_RSRP = info.getCellSignalStrength().getRsrp();
                 mData.lte_RSRQ = info.getCellSignalStrength().getRsrq();
@@ -336,6 +374,8 @@ public class CellSignalManager {
             } else {
                 mData.lte_RSRP = info.getCellSignalStrength().getDbm();
             }
+            try { mData.lte_TA  = info.getCellSignalStrength().getTimingAdvance(); } catch (Exception ignored) {}
+            try { mData.lte_CQI = info.getCellSignalStrength().getCqi(); } catch (Exception ignored) {}
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -349,6 +389,12 @@ public class CellSignalManager {
             mData.nr_SSRSRP  = ss.getSsRsrp();
             mData.nr_SSRSRQ  = ss.getSsRsrq();
             mData.nr_SSSINR  = ss.getSsSinr();
+            try { mData.nr_TAC = id.getTac(); } catch (Exception ignored) {}
+            try {
+                mData.nr_CSIRSRP = ss.getCsiRsrp();
+                mData.nr_CSIRSRQ = ss.getCsiRsrq();
+                mData.nr_CSISINR = ss.getCsiSinr();
+            } catch (Exception ignored) {}
         }
 
         private void parseCdma(CellInfoCdma info) {

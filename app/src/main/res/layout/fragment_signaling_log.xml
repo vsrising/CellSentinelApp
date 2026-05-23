@@ -26,6 +26,15 @@
             android:layout_marginStart="8dp" />
 
         <Button
+            android:id="@+id/btn_sig_ai"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI分析"
+            android:textAllCaps="false"
+            android:textColor="#E65100" />
+
+        <Button
             android:id="@+id/btn_sig_export"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"

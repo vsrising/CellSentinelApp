@@ -2,4 +2,5 @@
 <paths>
     <external-files-path name="signaling" path="signaling/" />
     <external-files-path name="drivetest" path="drivetest/" />
+    <external-files-path name="reports"   path="reports/" />
 </paths>

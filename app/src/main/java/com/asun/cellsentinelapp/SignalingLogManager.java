@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,45 +32,104 @@ public class SignalingLogManager {
 
     public enum EventType { HANDOVER, RAT_CHANGE, SERVICE_STATE, SIGNAL_CHANGE, CELL_INFO }
 
-    /** One captured event, with full context at the moment it fired. */
+    /** One captured event with full context at the moment it fired. */
     public static class SignalingEvent {
         public final long      timestamp;
         public final EventType type;
         public final String    simLabel;
         public final String    summary;
         public final String    detail;
-        // Cell identity at capture time
-        public final int       ci;
-        public final int       enodebId;
-        public final int       cellIndex;
-        public final int       pci;
-        // Signal values at capture time
-        public final int       rsrp;
-        public final int       sinr;
-        public final int       rsrq;
-        // GPS at capture time
-        public final double    latitude;
-        public final double    longitude;
-        public final float     accuracy;
 
-        SignalingEvent(EventType type, String simLabel, String summary, String detail,
-                       int ci, int pci, int rsrp, int sinr, int rsrq,
-                       Location location) {
-            this.timestamp  = System.currentTimeMillis();
-            this.type       = type;
-            this.simLabel   = simLabel != null ? simLabel : "";
-            this.summary    = summary;
-            this.detail     = detail;
-            this.ci         = ci;
-            this.enodebId   = ci != Integer.MAX_VALUE && ci > 0 ? (ci >> 8) & 0xFFFFF : -1;
-            this.cellIndex  = ci != Integer.MAX_VALUE && ci > 0 ? ci & 0xFF : -1;
-            this.pci        = pci;
-            this.rsrp       = rsrp;
-            this.sinr       = sinr;
-            this.rsrq       = rsrq;
-            this.latitude   = location != null ? location.getLatitude()  : Double.NaN;
-            this.longitude  = location != null ? location.getLongitude() : Double.NaN;
-            this.accuracy   = location != null ? location.getAccuracy()  : -1;
+        // RAT
+        public final String rat;
+
+        // LTE serving cell identity
+        public final int ci, enodebId, cellIndex;
+        public final int pci, tac, earfcn;
+
+        // LTE signal
+        public final int rsrp, sinr, rsrq;
+        public final int ta;           // Timing Advance
+        public final int cqi;          // Channel Quality Indicator
+        public final int bandwidth;    // kHz
+
+        // NR signal (populated when NR is serving or in NSA anchor)
+        public final int nr_rsrp, nr_rsrq, nr_sinr;
+        public final int nr_csirsrp, nr_csirsrq, nr_csisinr;
+
+        // GPS context
+        public final double latitude, longitude;
+        public final float  altitude, speed, bearing, accuracy;
+
+        // Derived
+        public final int estimatedDistM;   // TA * 78, or -1
+
+        // Neighbor snapshot at capture time
+        public final List<CellSignalManager.NeighborCell> neighbors;
+
+        SignalingEvent(EventType type, String summary, String detail,
+                       CellSignalManager.SimSignalData d, Location loc) {
+            this.timestamp = System.currentTimeMillis();
+            this.type      = type;
+            this.summary   = summary;
+            this.detail    = detail;
+
+            if (d != null) {
+                this.simLabel = d.simLabel != null ? d.simLabel : "";
+
+                // RAT
+                if (d.nr_SSRSRP != Integer.MAX_VALUE)
+                    rat = "NR";
+                else if (d.lte_RSRP != Integer.MAX_VALUE || d.lte_CI != Integer.MAX_VALUE)
+                    rat = "LTE";
+                else if (d.wcdma_CID != Integer.MAX_VALUE)
+                    rat = "WCDMA";
+                else if (d.gsm_CID != Integer.MAX_VALUE)
+                    rat = "GSM";
+                else
+                    rat = "Unknown";
+
+                // LTE serving cell
+                ci        = d.lte_CI;
+                enodebId  = (ci != Integer.MAX_VALUE && ci > 0) ? (ci >> 8) & 0xFFFFF : -1;
+                cellIndex = (ci != Integer.MAX_VALUE && ci > 0) ? ci & 0xFF : -1;
+                pci       = d.lte_PCI;
+                tac       = d.lte_TAC;
+                earfcn    = d.lte_EARFCN;
+                rsrp      = d.lte_RSRP;
+                sinr      = d.lte_SINR;
+                rsrq      = d.lte_RSRQ;
+                ta        = d.lte_TA;
+                cqi       = d.lte_CQI;
+                bandwidth = d.lte_bandwidth;
+
+                // NR
+                nr_rsrp    = d.nr_SSRSRP;
+                nr_rsrq    = d.nr_SSRSRQ;
+                nr_sinr    = d.nr_SSSINR;
+                nr_csirsrp = d.nr_CSIRSRP;
+                nr_csirsrq = d.nr_CSIRSRQ;
+                nr_csisinr = d.nr_CSISINR;
+
+                neighbors = new ArrayList<>(d.neighborCellData);
+            } else {
+                simLabel  = "";  rat = "Unknown";
+                ci = pci = tac = earfcn = Integer.MAX_VALUE;
+                enodebId = cellIndex = -1;
+                rsrp = sinr = rsrq = ta = cqi = bandwidth = Integer.MAX_VALUE;
+                nr_rsrp = nr_rsrq = nr_sinr = Integer.MAX_VALUE;
+                nr_csirsrp = nr_csirsrq = nr_csisinr = Integer.MAX_VALUE;
+                neighbors = new ArrayList<>();
+            }
+
+            estimatedDistM = (ta != Integer.MAX_VALUE && ta >= 0) ? (int)(ta * 78.12) : -1;
+
+            latitude  = loc != null ? loc.getLatitude()  : Double.NaN;
+            longitude = loc != null ? loc.getLongitude() : Double.NaN;
+            altitude  = loc != null ? (float) loc.getAltitude()  : -1;
+            speed     = loc != null && loc.hasSpeed()   ? loc.getSpeed()   : -1;
+            bearing   = loc != null && loc.hasBearing() ? loc.getBearing() : -1;
+            accuracy  = loc != null ? loc.getAccuracy() : -1;
         }
 
         public String formattedTime() {
@@ -80,26 +138,62 @@ public class SignalingLogManager {
         }
 
         public String toCsvRow() {
+            String nbJson = neighborsToJson();
             return String.format(Locale.US,
-                    "%d,%s,%s,%s,\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                    "%d,%s,%s,%s,%s,\"%s\",\"%s\"," +
+                    "%s,%s,%s,%s,%s,%s," +
+                    "%s,%s,%s,%s,%s,%s,%s," +
+                    "%s,%s,%s," +
+                    "%s,%s,%s,%s,%s,%s," +
+                    "%d,\"%s\"",
                     timestamp,
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date(timestamp)),
-                    csvStr(simLabel),
-                    type.name(),
+                    csvStr(simLabel), type.name(), csvStr(rat),
                     summary.replace("\"", "\"\""),
                     detail.replace("\"", "\"\""),
-                    fmtInt(ci), fmtInt(enodebId), fmtInt(cellIndex), fmtInt(pci),
+                    // LTE cell identity
+                    fmtInt(ci), fmtInt(enodebId), fmtInt(cellIndex), fmtInt(pci), fmtInt(tac), fmtInt(earfcn),
+                    // LTE signal + extras
+                    fmtInt(rsrp), fmtInt(sinr), fmtInt(rsrq), fmtInt(ta),
+                    estimatedDistM < 0 ? "N/A" : String.valueOf(estimatedDistM),
+                    fmtInt(cqi), fmtInt(bandwidth),
+                    // NR signal
+                    fmtInt(nr_rsrp), fmtInt(nr_rsrq), fmtInt(nr_sinr),
+                    // GPS
                     Double.isNaN(latitude)  ? "N/A" : String.format(Locale.US, "%.6f", latitude),
                     Double.isNaN(longitude) ? "N/A" : String.format(Locale.US, "%.6f", longitude),
-                    fmtInt(rsrp), fmtInt(sinr), fmtInt(rsrq));
+                    altitude  < 0 ? "N/A" : String.format(Locale.US, "%.1f", altitude),
+                    speed     < 0 ? "N/A" : String.format(Locale.US, "%.2f", speed),
+                    bearing   < 0 ? "N/A" : String.format(Locale.US, "%.1f", bearing),
+                    accuracy  < 0 ? "N/A" : String.format(Locale.US, "%.1f", accuracy),
+                    // neighbors
+                    neighbors.size(), nbJson);
+        }
+
+        private String neighborsToJson() {
+            if (neighbors.isEmpty()) return "";
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < neighbors.size(); i++) {
+                CellSignalManager.NeighborCell nc = neighbors.get(i);
+                if (i > 0) sb.append(";");
+                sb.append(nc.rat).append(":PCI").append(fmtInt(nc.pci))
+                  .append(":EARFCN").append(fmtInt(nc.earfcn))
+                  .append(":RSRP").append(fmtInt(nc.rsrp));
+                if (nc.rsrq != Integer.MAX_VALUE) sb.append(":RSRQ").append(nc.rsrq);
+            }
+            return sb.append("]").toString();
         }
 
         private static String csvStr(String s) { return s == null || s.isEmpty() ? "N/A" : s; }
         private static String fmtInt(int v) { return v == Integer.MAX_VALUE || v < 0 ? "N/A" : String.valueOf(v); }
 
         public static String csvHeader() {
-            return "timestamp,datetime,sim,type,summary,detail,ci,enodeb_id,cell_index,pci," +
-                   "latitude,longitude,rsrp,sinr,rsrq";
+            return "timestamp,datetime,sim,type,rat,summary,detail," +
+                   "ci,enodeb_id,cell_index,pci,tac,earfcn," +
+                   "rsrp_dbm,sinr_db,rsrq_db,ta,est_dist_m,cqi,bw_khz," +
+                   "nr_rsrp,nr_rsrq,nr_sinr," +
+                   "latitude,longitude,altitude_m,speed_ms,bearing_deg,accuracy_m," +
+                   "neighbor_count,neighbors";
         }
     }
 
@@ -112,16 +206,15 @@ public class SignalingLogManager {
     private final List<SignalingEvent> mEvents  = new ArrayList<>();
     private final List<Listener>  mListeners   = new ArrayList<>();
 
-    // -1 = all SIMs, 0 = SIM1, 1 = SIM2
-    private int mTargetSimIndex = -1;
+    private int mTargetSimIndex = -1;   // -1 = all SIMs, 0 = SIM1, 1 = SIM2
 
-    private TelephonyManager mTelMgr;
-    private PhoneStateListener mPhoneListener;
-    private boolean            mRunning = false;
+    private TelephonyManager    mTelMgr;
+    private PhoneStateListener  mPhoneListener;
+    private boolean             mRunning = false;
 
     // GPS tracking
-    private LocationManager mLocMgr;
-    private Location        mLastLocation;
+    private LocationManager  mLocMgr;
+    private Location         mLastLocation;
     private final LocationListener mLocListener = new LocationListener() {
         @Override public void onLocationChanged(@NonNull Location l) { mLastLocation = l; }
         @Override public void onStatusChanged(String p, int s, Bundle e) {}
@@ -130,10 +223,10 @@ public class SignalingLogManager {
     };
 
     // State tracking for delta detection
-    private int    mLastNetworkType  = TelephonyManager.NETWORK_TYPE_UNKNOWN;
-    private int    mLastServiceState = -1;
-    private int    mLastRsrp         = Integer.MAX_VALUE;
-    private int    mLastPci          = Integer.MAX_VALUE;
+    private int mLastNetworkType  = TelephonyManager.NETWORK_TYPE_UNKNOWN;
+    private int mLastServiceState = -1;
+    private int mLastRsrp         = Integer.MAX_VALUE;
+    private int mLastPci          = Integer.MAX_VALUE;
 
     public SignalingLogManager(Context ctx) {
         mCtx    = ctx.getApplicationContext();
@@ -141,7 +234,6 @@ public class SignalingLogManager {
         mLocMgr = (LocationManager) mCtx.getSystemService(Context.LOCATION_SERVICE);
     }
 
-    /** -1 = all SIMs, 0 = SIM 1, 1 = SIM 2. Restarts listener if already running. */
     public void setTargetSimIndex(int index) {
         if (mTargetSimIndex == index) return;
         mTargetSimIndex = index;
@@ -153,9 +245,7 @@ public class SignalingLogManager {
     public void start() {
         if (mRunning) return;
         mRunning = true;
-
-        // Pick TelephonyManager for target SIM
-        mTelMgr = buildTelephonyManager();
+        mTelMgr  = buildTelephonyManager();
 
         mPhoneListener = new PhoneStateListener() {
             @Override
@@ -163,9 +253,10 @@ public class SignalingLogManager {
                 int state = ss.getState();
                 if (state == mLastServiceState) return;
                 mLastServiceState = state;
+                String op = ss.getOperatorAlphaLong();
                 addEvent(EventType.SERVICE_STATE,
                         "服务状态 → " + serviceStateDesc(state),
-                        "State=" + state + "  Operator=" + ss.getOperatorAlphaLong());
+                        "State=" + state + (op != null ? "  运营商=" + op : ""));
             }
 
             @Override
@@ -173,18 +264,17 @@ public class SignalingLogManager {
                 CellSignalManager.SimSignalData d = getTargetSim();
                 if (d == null) return;
 
-                int rsrp = d.lte_RSRP != Integer.MAX_VALUE ? d.lte_RSRP : d.nr_SSRSRP;
-                int sinr = d.lte_SINR != Integer.MAX_VALUE ? d.lte_SINR : d.nr_SSSINR;
-                int rsrq = d.lte_RSRQ != Integer.MAX_VALUE ? d.lte_RSRQ : d.nr_SSRSRQ;
-                int pci  = d.lte_PCI  != Integer.MAX_VALUE ? d.lte_PCI  : d.nr_PCI;
-                int ci   = d.lte_CI   != Integer.MAX_VALUE ? d.lte_CI   : Integer.MAX_VALUE;
+                // Unified primary signal values
+                int rsrp = d.nr_SSRSRP != Integer.MAX_VALUE ? d.nr_SSRSRP
+                         : d.lte_RSRP  != Integer.MAX_VALUE ? d.lte_RSRP : Integer.MAX_VALUE;
+                int pci  = d.nr_PCI    != Integer.MAX_VALUE ? d.nr_PCI
+                         : d.lte_PCI   != Integer.MAX_VALUE ? d.lte_PCI  : Integer.MAX_VALUE;
 
-                // Handover: PCI changed
+                // Handover: serving PCI changed
                 if (pci != Integer.MAX_VALUE && mLastPci != Integer.MAX_VALUE && pci != mLastPci) {
                     addEvent(EventType.HANDOVER,
                             "切换  PCI " + mLastPci + " → " + pci,
-                            "RSRP=" + fmt(rsrp) + "dBm  CI=" + fmt(ci),
-                            ci, pci, rsrp, sinr, rsrq, d.simLabel);
+                            buildSignalDetail(d), d);
                 }
                 mLastPci = pci;
 
@@ -194,8 +284,7 @@ public class SignalingLogManager {
                     String dir = rsrp > mLastRsrp ? "↑" : "↓";
                     addEvent(EventType.SIGNAL_CHANGE,
                             "信号 " + dir + "  " + mLastRsrp + " → " + rsrp + " dBm",
-                            "PCI=" + fmt(pci) + "  CI=" + fmt(ci),
-                            ci, pci, rsrp, sinr, rsrq, d.simLabel);
+                            buildSignalDetail(d), d);
                 }
                 if (rsrp != Integer.MAX_VALUE) mLastRsrp = rsrp;
             }
@@ -207,7 +296,7 @@ public class SignalingLogManager {
                 String to   = networkTypeName(networkType);
                 mLastNetworkType = networkType;
                 addEvent(EventType.RAT_CHANGE,
-                        "RAT 变更  " + from + " → " + to,
+                        "RAT变更  " + from + " → " + to,
                         "networkType=" + networkType);
             }
         };
@@ -217,7 +306,6 @@ public class SignalingLogManager {
                 | PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
                 | PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 
-        // Start GPS tracking for event context
         if (ContextCompat.checkSelfPermission(mCtx, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             try {
@@ -239,13 +327,12 @@ public class SignalingLogManager {
         addEvent(EventType.SERVICE_STATE, "监听已停止", "");
     }
 
-    public boolean isRunning() { return mRunning; }
+    public boolean isRunning()          { return mRunning; }
     public void addListener(Listener l)    { mListeners.add(l); }
     public void removeListener(Listener l) { mListeners.remove(l); }
-    public List<SignalingEvent> getEvents()  { return Collections.unmodifiableList(mEvents); }
+    public List<SignalingEvent> getEvents() { return Collections.unmodifiableList(mEvents); }
     public void clearEvents()              { mEvents.clear(); }
 
-    /** Export to CSV in the app's external drivetest folder. Returns the file or null on failure. */
     public File exportCsv() {
         File dir = mCtx.getExternalFilesDir("signaling");
         if (dir == null) return null;
@@ -261,23 +348,15 @@ public class SignalingLogManager {
         } catch (Exception e) { return null; }
     }
 
-    // ── Internals ────────────────────────────────────────────────────────────
+    // ── Internals ─────────────────────────────────────────────────────────────
 
     private void addEvent(EventType type, String summary, String detail) {
-        CellSignalManager.SimSignalData d = getTargetSim();
-        int ci   = d != null && d.lte_CI  != Integer.MAX_VALUE ? d.lte_CI  : Integer.MAX_VALUE;
-        int pci  = d != null && d.lte_PCI != Integer.MAX_VALUE ? d.lte_PCI : Integer.MAX_VALUE;
-        int rsrp = d != null && d.lte_RSRP!= Integer.MAX_VALUE ? d.lte_RSRP: Integer.MAX_VALUE;
-        int sinr = d != null && d.lte_SINR!= Integer.MAX_VALUE ? d.lte_SINR: Integer.MAX_VALUE;
-        int rsrq = d != null && d.lte_RSRQ!= Integer.MAX_VALUE ? d.lte_RSRQ: Integer.MAX_VALUE;
-        String sl = d != null ? d.simLabel : "";
-        addEvent(type, summary, detail, ci, pci, rsrp, sinr, rsrq, sl);
+        addEvent(type, summary, detail, getTargetSim());
     }
 
     private void addEvent(EventType type, String summary, String detail,
-                          int ci, int pci, int rsrp, int sinr, int rsrq, String simLabel) {
-        SignalingEvent e = new SignalingEvent(type, simLabel, summary, detail,
-                ci, pci, rsrp, sinr, rsrq, mLastLocation);
+                          CellSignalManager.SimSignalData d) {
+        SignalingEvent e = new SignalingEvent(type, summary, detail, d, mLastLocation);
         mMainHandler.post(() -> {
             if (mEvents.size() >= MAX_EVENTS) mEvents.remove(0);
             mEvents.add(e);
@@ -285,7 +364,26 @@ public class SignalingLogManager {
         });
     }
 
-    /** Get the SimSignalData for the targeted SIM (or first available if -1). */
+    private String buildSignalDetail(CellSignalManager.SimSignalData d) {
+        StringBuilder sb = new StringBuilder();
+        if (d.lte_RSRP != Integer.MAX_VALUE) {
+            sb.append("RSRP=").append(d.lte_RSRP).append("dBm");
+            if (d.lte_SINR != Integer.MAX_VALUE) sb.append(" SINR=").append(d.lte_SINR).append("dB");
+            if (d.lte_RSRQ != Integer.MAX_VALUE) sb.append(" RSRQ=").append(d.lte_RSRQ).append("dB");
+        }
+        if (d.nr_SSRSRP != Integer.MAX_VALUE) {
+            if (sb.length() > 0) sb.append(" | NR:");
+            sb.append("SS-RSRP=").append(d.nr_SSRSRP).append("dBm");
+            if (d.nr_SSSINR != Integer.MAX_VALUE) sb.append(" SS-SINR=").append(d.nr_SSSINR).append("dB");
+        }
+        if (d.lte_CI != Integer.MAX_VALUE) sb.append(" CI=").append(d.lte_CI);
+        if (d.lte_PCI != Integer.MAX_VALUE) sb.append(" PCI=").append(d.lte_PCI);
+        if (d.lte_TA != Integer.MAX_VALUE && d.lte_TA >= 0) {
+            sb.append(" TA=").append(d.lte_TA).append("(≈").append((int)(d.lte_TA*78.12)).append("m)");
+        }
+        return sb.toString();
+    }
+
     private CellSignalManager.SimSignalData getTargetSim() {
         if (MainActivity.signalManager == null) return null;
         List<CellSignalManager.SimSignalData> sims = MainActivity.signalManager.getSimDataList();
@@ -318,8 +416,6 @@ public class SignalingLogManager {
         return "SIM " + (mTargetSimIndex + 1);
     }
 
-    private static String fmt(int v) { return v == Integer.MAX_VALUE ? "N/A" : String.valueOf(v); }
-
     private static String serviceStateDesc(int state) {
         switch (state) {
             case ServiceState.STATE_IN_SERVICE:      return "在网";
@@ -333,7 +429,7 @@ public class SignalingLogManager {
     private static String networkTypeName(int type) {
         switch (type) {
             case TelephonyManager.NETWORK_TYPE_LTE:     return "LTE";
-            case TelephonyManager.NETWORK_TYPE_NR:      return "NR";
+            case TelephonyManager.NETWORK_TYPE_NR:      return "NR(5G)";
             case TelephonyManager.NETWORK_TYPE_UMTS:    return "UMTS";
             case TelephonyManager.NETWORK_TYPE_HSDPA:   return "HSDPA";
             case TelephonyManager.NETWORK_TYPE_HSPA:    return "HSPA";

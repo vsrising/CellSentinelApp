@@ -137,6 +137,66 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Hermes AI settings card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hermes AI 设置"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/et_hermes_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="AI 接口地址"
+                    android:inputType="textUri"
+                    android:maxLines="1"
+                    android:layout_marginTop="8dp" />
+
+                <EditText
+                    android:id="@+id/et_hermes_token"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="访问令牌 (Bearer Token)"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:layout_marginTop="6dp" />
+
+                <EditText
+                    android:id="@+id/et_hermes_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="模型名称（留空自动获取）"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:layout_marginTop="6dp" />
+
+                <Button
+                    android:id="@+id/btn_save_hermes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="保存AI设置"
+                    android:textAllCaps="false"
+                    android:layout_marginTop="8dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Login / Logout -->
         <Button
             android:id="@+id/btn_login"

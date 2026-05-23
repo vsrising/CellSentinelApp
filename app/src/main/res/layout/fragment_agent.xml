@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorSurface">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="智能体"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="8dp" />
+
+        <Button
+            android:id="@+id/btn_export_pdf"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="导出PDF"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_agent_clear"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清空"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_agent_settings"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚙"
+            android:textSize="16sp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A000000" />
+
+    <!-- Context data card (shown when analysis is triggered) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_context"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:visibility="gone"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFF3E0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📊 "
+                android:textSize="12sp"
+                android:textColor="#FF6F00" />
+
+            <TextView
+                android:id="@+id/tv_context_summary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="已附加分析数据"
+                android:textSize="12sp"
+                android:textColor="#FF6F00"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Chat messages -->
+    <ScrollView
+        android:id="@+id/sv_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingVertical="4dp">
+
+        <LinearLayout
+            android:id="@+id/ll_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="4dp"
+            android:paddingBottom="8dp" />
+
+    </ScrollView>
+
+    <!-- Typing indicator -->
+    <TextView
+        android:id="@+id/tv_typing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="4dp"
+        android:text="AI 正在思考…"
+        android:textSize="12sp"
+        android:textColor="#FF9800"
+        android:textStyle="italic"
+        android:visibility="gone" />
+
+    <!-- Input row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorSurface">
+
+        <EditText
+            android:id="@+id/et_agent_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="输入问题…"
+            android:inputType="textMultiLine"
+            android:maxLines="4"
+            android:background="@android:color/transparent"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:imeOptions="actionSend"
+            android:paddingHorizontal="8dp" />
+
+        <Button
+            android:id="@+id/btn_agent_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

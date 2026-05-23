@@ -160,10 +160,45 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     }
 
     private static class TrackPoint {
-        final GeoPoint point;
+        final GeoPoint  point;
+        final long      timestamp;
         final int rsrp, rsrq, sinr;
-        TrackPoint(GeoPoint p, int rsrp, int rsrq, int sinr) {
-            this.point = p; this.rsrp = rsrp; this.rsrq = rsrq; this.sinr = sinr;
+        final int pci, ci, tac, earfcn, ta;
+        final float altitude, speed;
+        final List<CellSignalManager.NeighborCell> neighbors;
+
+        TrackPoint(DriveTestRecord r) {
+            this.point     = new GeoPoint(r.latitude, r.longitude);
+            this.timestamp = r.timestamp;
+            this.rsrp      = r.rsrp;
+            this.rsrq      = r.rsrq;
+            this.sinr      = r.sinr;
+            this.pci       = r.pci;
+            this.ci        = r.ci;
+            this.tac       = r.tac;
+            this.earfcn    = r.earfcn;
+            this.ta        = r.ta;
+            this.altitude  = r.altitude;
+            this.speed     = r.speed;
+            this.neighbors = r.neighbors;
+        }
+
+        int estimatedDistM() {
+            return (ta != Integer.MAX_VALUE && ta >= 0) ? (int)(ta * 78.12) : -1;
+        }
+    }
+
+    private static class HandoverEvent {
+        final long     timestamp;
+        final GeoPoint point;
+        final int fromPci, toPci;
+        final int rsrp, sinr;
+        final int distM;
+
+        HandoverEvent(long ts, GeoPoint pt, int fromPci, int toPci, int rsrp, int sinr, int distM) {
+            this.timestamp = ts; this.point = pt;
+            this.fromPci = fromPci; this.toPci = toPci;
+            this.rsrp = rsrp; this.sinr = sinr; this.distM = distM;
         }
     }
 
@@ -191,6 +226,17 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private boolean  mMeasureMode   = false;
     private GeoPoint mMeasurePoint1 = null;
     private Polyline mMeasureLine   = null;
+
+    // Live signal display refresh (independent of GPS, fires every 500 ms during recording)
+    private final Handler  mSignalHandler  = new Handler(Looper.getMainLooper());
+    private final Runnable mSignalRunnable = new Runnable() {
+        @Override public void run() {
+            if (mManager != null && mManager.isRecording()) {
+                refreshLiveSignal();
+                mSignalHandler.postDelayed(this, 500);
+            }
+        }
+    };
 
     // Scroll debounce
     private final Handler  mScrollHandler         = new Handler(Looper.getMainLooper());
@@ -268,9 +314,25 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private long mStatsRsrpSum   = 0;
     private int  mStatsRsrpCount = 0;
 
+    private int  mStatsSinrMin   = Integer.MAX_VALUE;
+    private int  mStatsSinrMax   = Integer.MIN_VALUE;
+    private long mStatsSinrSum   = 0;
+    private int  mStatsSinrCount = 0;
+
+    private int  mStatsRsrqMin   = Integer.MAX_VALUE;
+    private int  mStatsRsrqMax   = Integer.MIN_VALUE;
+    private long mStatsRsrqSum   = 0;
+    private int  mStatsRsrqCount = 0;
+
+    private int  mStatsTaMin   = Integer.MAX_VALUE;
+    private int  mStatsTaMax   = 0;
+    private long mStatsTaSum   = 0;
+    private int  mStatsTaCount = 0;
+
     // Handover detection
-    private int         mLastPci         = Integer.MAX_VALUE;
-    private final List<Marker> mHandoverMarkers = new ArrayList<>();
+    private int  mLastPci = Integer.MAX_VALUE;
+    private final List<Marker>        mHandoverMarkers = new ArrayList<>();
+    private final List<HandoverEvent> mHandoverEvents  = new ArrayList<>();
 
     // WiFi layer (drive test indoor coverage)
     private final List<Marker> mWifiMarkers = new ArrayList<>();
@@ -281,6 +343,12 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private TextView         mTvOverlayRsrp;
     private TextView         mTvOverlaySinr;
     private TextView         mTvOverlayRsrq;
+
+    // Serving cell line (GPS → tower) drawn during recording and playback
+    private Polyline mServingCellLine;
+
+    // Playback signal display
+    private TextView mTvPlaybackSignal;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -317,6 +385,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         mCardPlayback         = root.findViewById(R.id.card_playback);
         mTvPlaybackFile       = root.findViewById(R.id.tv_playback_file);
         mTvPlaybackTime       = root.findViewById(R.id.tv_playback_time);
+        mTvPlaybackSignal     = root.findViewById(R.id.tv_playback_signal);
         mSeekBarPlayback      = root.findViewById(R.id.seekbar_playback);
         mBtnPlaybackPlayPause = root.findViewById(R.id.btn_playback_play_pause);
         mBtnPlaybackSpeed     = root.findViewById(R.id.btn_playback_speed);
@@ -387,6 +456,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
             pm.getMenu().add(0, 4, 0, "清除记录");
             pm.getMenu().add(0, 5, 0, "数据回放");
             pm.getMenu().add(0, 6, 0, mShowWifiLayer ? "隐藏 WiFi 层" : "显示 WiFi 层");
+            pm.getMenu().add(0, 7, 0, "AI 智能分析");
             pm.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case 1: exportCsv();             return true;
@@ -395,6 +465,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
                     case 4: clearRecords();           return true;
                     case 5: showPlaybackFilePicker(); return true;
                     case 6: toggleWifiLayer();        return true;
+                    case 7: startDriveTestAiAnalysis(); return true;
                 }
                 return false;
             });
@@ -448,6 +519,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         for (Polyline seg : mPlaybackSegments) mMapView.getOverlays().remove(seg);
         mPlaybackHandler.removeCallbacksAndMessages(null);
         mScrollHandler.removeCallbacksAndMessages(null);
+        mSignalHandler.removeCallbacksAndMessages(null);
         if (mManager.isRecording()) mManager.stopRecording();
         if (mMapView != null) mMapView.onDetach();
     }
@@ -996,7 +1068,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     @Override
     public void onLocationUpdate(Location location, DriveTestRecord newRecord) {
         GeoPoint gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-        TrackPoint tp = new TrackPoint(gp, newRecord.rsrp, newRecord.rsrq, newRecord.sinr);
+        TrackPoint tp = new TrackPoint(newRecord);
         addTrackPoint(tp);
         mMapView.getController().animateTo(gp);
         mMapView.invalidate();
@@ -1035,12 +1107,34 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
                         mStatsRsrpMin, avg, mStatsRsrpMax));
             }
         }
+        if (newRecord.sinr != Integer.MAX_VALUE) {
+            if (mStatsSinrMin == Integer.MAX_VALUE || newRecord.sinr < mStatsSinrMin)
+                mStatsSinrMin = newRecord.sinr;
+            if (mStatsSinrMax == Integer.MIN_VALUE || newRecord.sinr > mStatsSinrMax)
+                mStatsSinrMax = newRecord.sinr;
+            mStatsSinrSum += newRecord.sinr; mStatsSinrCount++;
+        }
+        if (newRecord.rsrq != Integer.MAX_VALUE) {
+            if (mStatsRsrqMin == Integer.MAX_VALUE || newRecord.rsrq < mStatsRsrqMin)
+                mStatsRsrqMin = newRecord.rsrq;
+            if (mStatsRsrqMax == Integer.MIN_VALUE || newRecord.rsrq > mStatsRsrqMax)
+                mStatsRsrqMax = newRecord.rsrq;
+            mStatsRsrqSum += newRecord.rsrq; mStatsRsrqCount++;
+        }
+        if (newRecord.ta != Integer.MAX_VALUE && newRecord.ta >= 0) {
+            if (mStatsTaMin == Integer.MAX_VALUE || newRecord.ta < mStatsTaMin) mStatsTaMin = newRecord.ta;
+            if (newRecord.ta > mStatsTaMax) mStatsTaMax = newRecord.ta;
+            mStatsTaSum += newRecord.ta; mStatsTaCount++;
+        }
 
         // Handover detection
         if (newRecord.pci != Integer.MAX_VALUE
                 && mLastPci != Integer.MAX_VALUE
                 && newRecord.pci != mLastPci) {
             markHandover(gp, mLastPci, newRecord.pci);
+            mHandoverEvents.add(new HandoverEvent(newRecord.timestamp, gp,
+                    mLastPci, newRecord.pci, newRecord.rsrp, newRecord.sinr,
+                    newRecord.estimatedDistM()));
         }
         if (newRecord.pci != Integer.MAX_VALUE) mLastPci = newRecord.pci;
 
@@ -1049,6 +1143,9 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
 
         // WiFi layer: scan at current position (throttled by WifiManager internal cooldown)
         if (mShowWifiLayer) scanAndPlotWifi(gp);
+
+        // Serving cell connecting line (GPS → tower)
+        updateServingCellLine(gp);
     }
 
     @Override
@@ -1065,18 +1162,25 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void toggleRecording() {
         if (mManager.isRecording()) {
             mManager.stopRecording();
+            mSignalHandler.removeCallbacks(mSignalRunnable);
             toast("已停止，共 " + mManager.getRecordCount() + " 条");
         } else {
             // Reset session stats
-            mStatsRsrpMin   = Integer.MAX_VALUE;
-            mStatsRsrpMax   = Integer.MIN_VALUE;
-            mStatsRsrpSum   = 0;
-            mStatsRsrpCount = 0;
+            mStatsRsrpMin   = Integer.MAX_VALUE; mStatsRsrpMax = Integer.MIN_VALUE;
+            mStatsRsrpSum   = 0;                 mStatsRsrpCount = 0;
+            mStatsSinrMin   = Integer.MAX_VALUE; mStatsSinrMax = Integer.MIN_VALUE;
+            mStatsSinrSum   = 0;                 mStatsSinrCount = 0;
+            mStatsRsrqMin   = Integer.MAX_VALUE; mStatsRsrqMax = Integer.MIN_VALUE;
+            mStatsRsrqSum   = 0;                 mStatsRsrqCount = 0;
+            mStatsTaMin     = Integer.MAX_VALUE; mStatsTaMax = 0;
+            mStatsTaSum     = 0;                 mStatsTaCount = 0;
             mLastPci        = Integer.MAX_VALUE;
+            mHandoverEvents.clear();
             boolean ok = mManager.startRecording(DriveTestManager.generateSessionName());
             if (ok) {
                 toast("开始路测");
                 refreshCellOverlays();
+                mSignalHandler.post(mSignalRunnable);
             }
         }
         updateButtonState();
@@ -1115,16 +1219,266 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         mHandoverMarkers.clear();
         for (Marker m : mWifiMarkers) mMapView.getOverlays().remove(m);
         mWifiMarkers.clear();
+        removeServingCellLine();
         clearCellOverlays();
         mMapView.invalidate();
         mTvCount.setText("已录制 0 条");
         // Reset stats display
-        mStatsRsrpMin = Integer.MAX_VALUE; mStatsRsrpMax = Integer.MIN_VALUE;
-        mStatsRsrpSum = 0; mStatsRsrpCount = 0;
+        mStatsRsrpMin = Integer.MAX_VALUE; mStatsRsrpMax = Integer.MIN_VALUE; mStatsRsrpSum = 0; mStatsRsrpCount = 0;
+        mStatsSinrMin = Integer.MAX_VALUE; mStatsSinrMax = Integer.MIN_VALUE; mStatsSinrSum = 0; mStatsSinrCount = 0;
+        mStatsRsrqMin = Integer.MAX_VALUE; mStatsRsrqMax = Integer.MIN_VALUE; mStatsRsrqSum = 0; mStatsRsrqCount = 0;
+        mStatsTaMin   = Integer.MAX_VALUE; mStatsTaMax   = 0;                 mStatsTaSum   = 0; mStatsTaCount   = 0;
+        mHandoverEvents.clear();
         if (mTvStats != null) mTvStats.setText("min/avg/max");
         if (mTvLiveSignal != null) mTvLiveSignal.setText("RSRP: — dBm");
         if (mTvSpeed != null) mTvSpeed.setText("— km/h");
         toast("已清除");
+    }
+
+    private void startDriveTestAiAnalysis() {
+        String ctx = buildDriveTestContext();
+        if (ctx == null) { toast("暂无路测数据可分析"); return; }
+        AgentFragment.setPendingAnalysis(ctx, "drive_test");
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new AgentFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private static String getSimRat(CellSignalManager.SimSignalData d) {
+        if (d.nr_SSRSRP != Integer.MAX_VALUE) return "5G NR";
+        if (d.lte_RSRP != Integer.MAX_VALUE || d.lte_CI != Integer.MAX_VALUE) return "LTE";
+        if (d.wcdma_CID != Integer.MAX_VALUE) return "WCDMA";
+        if (d.gsm_CID != Integer.MAX_VALUE) return "GSM";
+        return "未知";
+    }
+
+    private String buildDriveTestContext() {
+        if (mTrackPoints.isEmpty()) return null;
+
+        TrackPoint first = mTrackPoints.get(0);
+        TrackPoint last  = mTrackPoints.get(mTrackPoints.size()-1);
+        long durSec = (last.timestamp - first.timestamp) / 1000;
+        String duration = String.format(Locale.US, "%02d:%02d:%02d",
+                durSec/3600, (durSec%3600)/60, durSec%60);
+
+        // RSRP distribution
+        int rsrpEx=0,rsrpGood=0,rsrpOk=0,rsrpBad=0,rsrpVBad=0;
+        int sinrEx=0,sinrGood=0,sinrOk=0,sinrBad=0;
+        int taD0=0,taD1=0,taD2=0,taD3=0,taD4=0; // <500m,500-1k,1-2k,2-3k,>3k
+        for (TrackPoint tp : mTrackPoints) {
+            if (tp.rsrp != Integer.MAX_VALUE) {
+                if      (tp.rsrp >= -80)  rsrpEx++;
+                else if (tp.rsrp >= -90)  rsrpGood++;
+                else if (tp.rsrp >= -100) rsrpOk++;
+                else if (tp.rsrp >= -110) rsrpBad++;
+                else                      rsrpVBad++;
+            }
+            if (tp.sinr != Integer.MAX_VALUE) {
+                if      (tp.sinr >= 20) sinrEx++;
+                else if (tp.sinr >= 10) sinrGood++;
+                else if (tp.sinr >= 0)  sinrOk++;
+                else                    sinrBad++;
+            }
+            int dm = tp.estimatedDistM();
+            if (dm >= 0) {
+                if      (dm < 500)  taD0++;
+                else if (dm < 1000) taD1++;
+                else if (dm < 2000) taD2++;
+                else if (dm < 3000) taD3++;
+                else                taD4++;
+            }
+        }
+        int total = mTrackPoints.size();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== 专业路测分析数据 ===\n");
+        sb.append("分析时间: ")
+          .append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()))
+          .append("\n");
+        sb.append("设备: ").append(android.os.Build.MANUFACTURER).append(" ").append(android.os.Build.MODEL)
+          .append("  Android ").append(android.os.Build.VERSION.RELEASE)
+          .append(" (API ").append(android.os.Build.VERSION.SDK_INT).append(")\n\n");
+
+        // 一、测试配置
+        sb.append("【一、测试概况】\n");
+        if (MainActivity.signalManager != null) {
+            List<CellSignalManager.SimSignalData> sims = MainActivity.signalManager.getSimDataList();
+            if (!sims.isEmpty()) {
+                CellSignalManager.SimSignalData d = (mTestSimIndex >= 0 && mTestSimIndex < sims.size())
+                        ? sims.get(mTestSimIndex) : sims.get(0);
+                sb.append("SIM: ").append(d.simLabel).append("  运营商: ").append(d.operatorName)
+                  .append("  制式: ").append(getSimRat(d)).append("\n");
+            }
+        }
+        sb.append("总测试点: ").append(total).append("个")
+          .append("  测试时长: ").append(duration)
+          .append("  切换次数: ").append(mHandoverEvents.size()).append("次\n\n");
+
+        // 二、当前服务小区 (最后一个有效点)
+        sb.append("【二、当前服务小区信息】\n");
+        if (last.ci != Integer.MAX_VALUE && last.ci > 0) {
+            sb.append("CI: ").append(last.ci)
+              .append(" (eNB=").append((last.ci >> 8) & 0xFFFFF)
+              .append(", Cell=").append(last.ci & 0xFF).append(")\n");
+        }
+        if (last.pci != Integer.MAX_VALUE) sb.append("PCI: ").append(last.pci).append("\n");
+        if (last.tac != Integer.MAX_VALUE) sb.append("TAC: ").append(last.tac).append("\n");
+        if (last.earfcn != Integer.MAX_VALUE) {
+            String band = EarfcnDecoder.decodeLte(last.earfcn);
+            sb.append("EARFCN: ").append(last.earfcn);
+            if (band != null) sb.append(" (").append(band).append(")");
+            sb.append("\n");
+        }
+        if (last.rsrp != Integer.MAX_VALUE) {
+            sb.append("RSRP: ").append(last.rsrp).append(" dBm");
+            if (last.sinr != Integer.MAX_VALUE) sb.append("  SINR: ").append(last.sinr).append(" dB");
+            if (last.rsrq != Integer.MAX_VALUE) sb.append("  RSRQ: ").append(last.rsrq).append(" dB");
+            sb.append("\n");
+        }
+        int lastDist = last.estimatedDistM();
+        if (last.ta != Integer.MAX_VALUE) {
+            sb.append("Timing Advance: ").append(last.ta)
+              .append("  →  估算距离: ").append(lastDist >= 0 ? lastDist + " m" : "N/A").append("\n");
+        }
+        if (last.altitude > 0) sb.append("GPS高度: ").append((int)last.altitude).append(" m\n");
+        // serving cell neighbors from last track point
+        if (!last.neighbors.isEmpty()) {
+            sb.append("末点邻区 (").append(last.neighbors.size()).append("个):\n");
+            int serRsrp = last.rsrp;
+            for (int i = 0; i < Math.min(8, last.neighbors.size()); i++) {
+                CellSignalManager.NeighborCell nc = last.neighbors.get(i);
+                sb.append("  #").append(i+1).append(" ").append(nc);
+                if (serRsrp != Integer.MAX_VALUE && nc.rsrp != Integer.MAX_VALUE) {
+                    int delta = nc.rsrp - serRsrp;
+                    sb.append(" [ΔRSRP=").append(delta).append("dB");
+                    if (delta >= -3) sb.append(" ⚠导频污染");
+                    sb.append("]");
+                }
+                sb.append("\n");
+                if (nc.earfcn != Integer.MAX_VALUE) {
+                    String band = "LTE".equals(nc.rat) ? EarfcnDecoder.decodeLte(nc.earfcn)
+                                                       : EarfcnDecoder.decodeNr(nc.earfcn);
+                    if (band != null) sb.append("      → ").append(band).append("\n");
+                }
+            }
+        }
+        sb.append("\n");
+
+        // 三、信号质量统计
+        sb.append("【三、信号质量统计】\n");
+        if (mStatsRsrpCount > 0) {
+            sb.append(String.format(Locale.US, "RSRP: 最小=%d  均值=%d  最大=%d dBm\n",
+                    mStatsRsrpMin, (int)(mStatsRsrpSum/mStatsRsrpCount), mStatsRsrpMax));
+            sb.append(dtBar("≥-80优秀",   rsrpEx,   total));
+            sb.append(dtBar("-80~-90良好", rsrpGood, total));
+            sb.append(dtBar("-90~-100可用",rsrpOk,   total));
+            sb.append(dtBar("-100~-110差", rsrpBad,  total));
+            sb.append(dtBar("<-110极差",   rsrpVBad, total));
+        }
+        if (mStatsSinrCount > 0) {
+            sb.append(String.format(Locale.US, "SINR: 最小=%d  均值=%d  最大=%d dB\n",
+                    mStatsSinrMin, (int)(mStatsSinrSum/mStatsSinrCount), mStatsSinrMax));
+            sb.append(dtBar("≥20优秀",   sinrEx,   total));
+            sb.append(dtBar("10~20良好",  sinrGood, total));
+            sb.append(dtBar("0~10可用",   sinrOk,   total));
+            sb.append(dtBar("<0干扰",      sinrBad,  total));
+        }
+        if (mStatsRsrqCount > 0) {
+            sb.append(String.format(Locale.US, "RSRQ: 最小=%d  均值=%d  最大=%d dB\n",
+                    mStatsRsrqMin, (int)(mStatsRsrqSum/mStatsRsrqCount), mStatsRsrqMax));
+        }
+        if (mStatsTaCount > 0) {
+            sb.append(String.format(Locale.US,
+                    "TA: 最小=%d  均值=%d  最大=%d  →  距离范围: %dm ~ %dm\n",
+                    mStatsTaMin, (int)(mStatsTaSum/mStatsTaCount), mStatsTaMax,
+                    (int)(mStatsTaMin*78.12), (int)(mStatsTaMax*78.12)));
+            int taTot = taD0+taD1+taD2+taD3+taD4;
+            if (taTot > 0) {
+                sb.append(dtBar("<500m",    taD0, taTot));
+                sb.append(dtBar("500m-1km", taD1, taTot));
+                sb.append(dtBar("1km-2km",  taD2, taTot));
+                sb.append(dtBar("2km-3km",  taD3, taTot));
+                sb.append(dtBar(">3km",     taD4, taTot));
+            }
+        }
+        sb.append("\n");
+
+        // 四、切换事件
+        if (!mHandoverEvents.isEmpty()) {
+            sb.append("【四、切换事件记录】\n");
+            sb.append(String.format(Locale.US, "%-4s %-10s %-14s %-8s %-7s %s\n",
+                    "序号","时间","PCI切换","RSRP","距离","位置"));
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            for (int i = 0; i < mHandoverEvents.size(); i++) {
+                HandoverEvent he = mHandoverEvents.get(i);
+                String rsrpStr = he.rsrp != Integer.MAX_VALUE ? he.rsrp + "dBm" : "N/A";
+                String distStr = he.distM >= 0 ? he.distM + "m" : "N/A";
+                String posStr  = String.format(Locale.US, "%.4f,%.4f",
+                        he.point.getLatitude(), he.point.getLongitude());
+                sb.append(String.format(Locale.US, "#%-3d %-10s %-14s %-8s %-7s %s\n",
+                        i+1, sdf.format(new Date(he.timestamp)),
+                        he.fromPci + "→" + he.toPci, rsrpStr, distStr, posStr));
+            }
+            sb.append("\n");
+        }
+
+        // 五、路测时间序列 (均匀采样最多60点)
+        sb.append("【五、路测时间序列 (均匀采样最多60点)】\n");
+        sb.append(String.format(Locale.US, "%-10s %-5s %-5s %-5s %-5s %-10s %-5s %-6s %-7s %-6s %s\n",
+                "时间","RSRP","SINR","RSRQ","PCI","CI","TA","距离m","速度","高度m","GPS坐标"));
+        int step = Math.max(1, mTrackPoints.size() / 60);
+        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        for (int i = 0; i < mTrackPoints.size(); i += step) {
+            TrackPoint tp = mTrackPoints.get(i);
+            int dm = tp.estimatedDistM();
+            String speedKmh = tp.speed >= 0
+                    ? String.format(Locale.US, "%.0fkm/h", tp.speed * 3.6f) : "N/A";
+            sb.append(String.format(Locale.US,
+                    "%-10s %-5s %-5s %-5s %-5s %-10s %-5s %-6s %-7s %-6s %.5f,%.5f\n",
+                    sdf2.format(new Date(tp.timestamp)),
+                    tp.rsrp  != Integer.MAX_VALUE ? String.valueOf(tp.rsrp)  : "N/A",
+                    tp.sinr  != Integer.MAX_VALUE ? String.valueOf(tp.sinr)  : "N/A",
+                    tp.rsrq  != Integer.MAX_VALUE ? String.valueOf(tp.rsrq)  : "N/A",
+                    tp.pci   != Integer.MAX_VALUE ? String.valueOf(tp.pci)   : "N/A",
+                    tp.ci    != Integer.MAX_VALUE && tp.ci > 0 ? String.valueOf(tp.ci) : "N/A",
+                    tp.ta    != Integer.MAX_VALUE ? String.valueOf(tp.ta)    : "N/A",
+                    dm >= 0 ? String.valueOf(dm) : "N/A",
+                    speedKmh,
+                    tp.altitude > 0 ? String.format(Locale.US,"%.0f",tp.altitude) : "N/A",
+                    tp.point.getLatitude(), tp.point.getLongitude()));
+        }
+        sb.append("\n");
+
+        // 六、问题区域标注
+        sb.append("【六、网络问题区域】\n");
+        boolean hasIssue = false;
+        for (TrackPoint tp : mTrackPoints) {
+            if (tp.rsrp != Integer.MAX_VALUE && tp.rsrp < -110) {
+                sb.append(String.format(Locale.US, "弱覆盖 RSRP=%d dBm @ %.4f,%.4f\n",
+                        tp.rsrp, tp.point.getLatitude(), tp.point.getLongitude()));
+                hasIssue = true;
+            }
+        }
+        for (TrackPoint tp : mTrackPoints) {
+            if (tp.sinr != Integer.MAX_VALUE && tp.sinr < 3) {
+                sb.append(String.format(Locale.US, "高干扰  SINR=%d dB  @ %.4f,%.4f\n",
+                        tp.sinr, tp.point.getLatitude(), tp.point.getLongitude()));
+                hasIssue = true;
+            }
+        }
+        if (!hasIssue) sb.append("未检测到明显弱覆盖/高干扰区域\n");
+        sb.append("\n");
+
+        sb.append("注：天线挂高/方位角/俯仰角/发射功率需从网管系统获取，设备端无法直接采集。\n");
+        sb.append("建议结合网管MR数据及路测专业软件进行深度分析。\n");
+
+        return sb.toString();
+    }
+
+    private static String dtBar(String label, int count, int total) {
+        int pct = total > 0 ? (int)(count * 100.0 / total) : 0;
+        return String.format(Locale.US, "  %-12s %4d点 (%2d%%)\n", label, count, pct);
     }
 
     private void markHandover(GeoPoint location, int fromPci, int toPci) {
@@ -1163,6 +1517,32 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         if (mTvSpeed       != null) mTvSpeed.setVisibility(statVis);
         if (mTvLiveSignal  != null) mTvLiveSignal.setVisibility(statVis);
         if (mTvStats       != null) mTvStats.setVisibility(statVis);
+        // Hide cell info card during recording (avoid overlap with mini chart)
+        // On stop, leave it GONE — user re-opens it by tapping a sector
+        if (rec && mCardCellInfo != null) mCardCellInfo.setVisibility(View.GONE);
+        // Hide signal overlay during recording (tv_live_signal shows same values)
+        if (mCardSignalOverlay != null) mCardSignalOverlay.setVisibility(rec ? View.GONE : View.VISIBLE);
+        // Remove serving cell line when not recording
+        if (!rec) removeServingCellLine();
+    }
+
+    /** Refresh live signal text from the latest CellSignalManager snapshot (500 ms cadence). */
+    private void refreshLiveSignal() {
+        if (MainActivity.signalManager == null) return;
+        List<CellSignalManager.SimSignalData> sims = MainActivity.signalManager.getSimDataList();
+        if (sims.isEmpty()) return;
+        CellSignalManager.SimSignalData d = (mTestSimIndex >= 0 && mTestSimIndex < sims.size())
+                ? sims.get(mTestSimIndex) : sims.get(0);
+        int rsrp = d.lte_RSRP  != Integer.MAX_VALUE ? d.lte_RSRP  : d.nr_SSRSRP;
+        int sinr = d.lte_SINR  != Integer.MAX_VALUE ? d.lte_SINR  : d.nr_SSSINR;
+        int rsrq = d.lte_RSRQ  != Integer.MAX_VALUE ? d.lte_RSRQ  : d.nr_SSRSRQ;
+        if (mTvLiveSignal != null && rsrp != Integer.MAX_VALUE) {
+            mTvLiveSignal.setText(String.format(Locale.US,
+                    "RSRP %d  SINR %s  RSRQ %s",
+                    rsrp,
+                    sinr == Integer.MAX_VALUE ? "—" : String.valueOf(sinr),
+                    rsrq == Integer.MAX_VALUE ? "—" : String.valueOf(rsrq)));
+        }
     }
 
     public void updateSignalOverlay() {
@@ -1185,6 +1565,45 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
 
         int rsrpColor = rsrp != Integer.MAX_VALUE ? getMetricColor(rsrp, METRIC_RSRP) : 0xFFFFFFFF;
         mTvOverlayRsrp.setTextColor(rsrpColor);
+    }
+
+    // ── Serving cell connecting line ──────────────────────────────────────────
+
+    /** Returns the lat/lon of the currently-marked serving sector, or null. */
+    private GeoPoint findServingCellPoint() {
+        for (SectorEntry s : mAllSectorCache.values()) {
+            if (s.isServing) return new GeoPoint(s.lat, s.lon);
+        }
+        return null;
+    }
+
+    /** Draw/update a semi-transparent line from currentPos to the serving cell tower. */
+    private void updateServingCellLine(GeoPoint currentPos) {
+        GeoPoint tower = findServingCellPoint();
+        if (tower == null) { removeServingCellLine(); return; }
+
+        if (mServingCellLine == null) {
+            mServingCellLine = new Polyline();
+            mServingCellLine.getOutlinePaint().setStrokeWidth(3.5f);
+            mServingCellLine.getOutlinePaint().setColor(0xAAFF8800);   // semi-transparent orange
+            mServingCellLine.getOutlinePaint().setPathEffect(
+                    new android.graphics.DashPathEffect(new float[]{18, 10}, 0));
+            mServingCellLine.setInfoWindow(null);
+            mMapView.getOverlays().add(mServingCellLine);
+        }
+        List<GeoPoint> pts = new ArrayList<>(2);
+        pts.add(currentPos);
+        pts.add(tower);
+        mServingCellLine.setPoints(pts);
+        mMapView.invalidate();
+    }
+
+    private void removeServingCellLine() {
+        if (mServingCellLine != null) {
+            mMapView.getOverlays().remove(mServingCellLine);
+            mServingCellLine = null;
+            mMapView.invalidate();
+        }
     }
 
     private void updateSimLabel() {
@@ -1291,22 +1710,28 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private List<PlaybackEntry> parseCsvForPlayback(File csvFile) {
         List<PlaybackEntry> result = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            if (br.readLine() == null) return result; // skip header
+            String header = br.readLine();
+            if (header == null) return result;
+            // New format adds altitude,speed_ms,bearing after accuracy (shifts simLabel etc by 3)
+            boolean newFmt = header.contains("altitude");
+            int slIdx = newFmt ? 7 : 4, opIdx = newFmt ? 8 : 5, ratIdx = newFmt ? 9 : 6;
+            int rsrpIdx = newFmt ? 10 : 7, rsrqIdx = newFmt ? 11 : 8;
+            int sinrIdx = newFmt ? 12 : 9, pciIdx  = newFmt ? 13 : 10;
             String line;
             while ((line = br.readLine()) != null) {
                 String[] p = line.split(",");
-                if (p.length < 11) continue;
+                if (p.length <= pciIdx) continue;
                 try {
                     long   ts  = Long.parseLong(p[0].trim());
                     double lat = Double.parseDouble(p[1].trim());
                     double lon = Double.parseDouble(p[2].trim());
-                    String sl  = p[4].trim();
-                    String op  = p[5].trim();
-                    String rat = p[6].trim();
-                    int rsrp = parseIntOrMax(p[7]);
-                    int rsrq = p.length > 8 ? parseIntOrMax(p[8]) : Integer.MAX_VALUE;
-                    int sinr = p.length > 9 ? parseIntOrMax(p[9]) : Integer.MAX_VALUE;
-                    int pci  = p.length > 10 ? parseIntOrMax(p[10]) : Integer.MAX_VALUE;
+                    String sl  = p[slIdx].trim();
+                    String op  = p[opIdx].trim();
+                    String rat = p[ratIdx].trim();
+                    int rsrp = parseIntOrMax(p[rsrpIdx]);
+                    int rsrq = parseIntOrMax(p[rsrqIdx]);
+                    int sinr = parseIntOrMax(p[sinrIdx]);
+                    int pci  = parseIntOrMax(p[pciIdx]);
                     result.add(new PlaybackEntry(ts, lat, lon, rat, rsrp, rsrq, sinr, pci, sl, op));
                 } catch (NumberFormatException ignored) {}
             }
@@ -1330,6 +1755,23 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
         String ts = new SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 .format(new Date(e.timestamp));
         mTvPlaybackTime.setText(ts + "  " + (index + 1) + " / " + mPlaybackRecords.size() + " 条");
+
+        // Signal parameters display
+        if (mTvPlaybackSignal != null) {
+            String rsrpStr = e.rsrp == Integer.MAX_VALUE ? "—" : e.rsrp + " dBm";
+            String sinrStr = e.sinr == Integer.MAX_VALUE ? "—" : e.sinr + " dB";
+            String rsrqStr = e.rsrq == Integer.MAX_VALUE ? "—" : e.rsrq + " dB";
+            String pciStr  = e.pci  == Integer.MAX_VALUE ? "—" : String.valueOf(e.pci);
+            mTvPlaybackSignal.setText(String.format(Locale.US,
+                    "RSRP %s  SINR %s  RSRQ %s  PCI %s", rsrpStr, sinrStr, rsrqStr, pciStr));
+            int rsrpColor = (e.rsrp != Integer.MAX_VALUE)
+                    ? getMetricColor(e.rsrp, METRIC_RSRP) : 0xFF757575;
+            mTvPlaybackSignal.setTextColor(rsrpColor);
+        }
+
+        // Serving cell line for playback
+        updateServingCellLine(gp);
+
         mMapView.invalidate();
     }
 
@@ -1377,6 +1819,7 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
             mMapView.getOverlays().remove(mPlaybackMarker);
             mPlaybackMarker = null;
         }
+        removeServingCellLine();
         mCardPlayback.setVisibility(View.GONE);
         mMapView.invalidate();
     }

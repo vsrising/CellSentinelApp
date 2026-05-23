@@ -8,16 +8,20 @@ CellSentinelApp 是一款面向 Android 设备的蜂窝网络监测、路测和�
 
 - 实时蜂窝信号监测：展示 RSRP、RSRQ、SINR、PCI、CI、TAC、MCC/MNC、EARFCN/NRARFCN、频段等信息。
 - 多 SIM 卡支持：根据设备能力展示不同 SIM 卡的网络与信号数据。
+- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113557_CellSentinelApp.jpg)
 - 路测记录：基于 GPS 记录移动轨迹和信号采样点，支持按 RSRP、SINR、RSRQ 进行颜色分级显示。
 - 地图展示：集成 osmdroid，支持 OSM、ESRI 卫星、Google 卫星、高德卫星等图层。
+- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113618_CellSentinelApp.jpg)
 - 数据导出与回放：路测数据可导出 CSV / KML，并支持 CSV 路测记录回放。
+- ![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113641_CellSentinelApp.jpg)
 - Wi-Fi 信息：查看当前连接信息、扫描周边 Wi-Fi，并可在路测地图上叠加 Wi-Fi 点位。
 - 设备与位置信息：查看 Android 设备、定位和网络相关信息。
-- 信令日志：记录关键网络变化事件，并支持 CSV 导出。
+- 信令事件日志：基于 Android Telephony API 记录服务状态、RAT 变化、PCI 变化、信号强度变化等事件，并支持 CSV 导出。
 - 网络测速：支持公网测速和自定义服务器测速。
 - 服务端对接：支持配置主服务器和备用服务器，并可上传信号快照、路测记录等数据。
-
-### 技术栈
+- 支持自定义智能体分析功能，能导出pdf分析报告。![](C:\AsunCloud\cache\github\CellSentinelApp\app\src\main\res\drawable\author\Screenshot_20260523_113928_CellSentinelApp.jpg)
+  
+  ### 技术栈
 
 - Android Java
 - Gradle Kotlin DSL
@@ -43,6 +47,12 @@ CellSentinelApp 是一款面向 Android 设备的蜂窝网络监测、路测和�
 
 应用会请求位置、电话状态、网络访问、Wi-Fi 状态等权限。这些权限用于读取蜂窝网络信息、记录路测轨迹、扫描 Wi-Fi、访问地图瓦片、测速和上传数据。
 
+### 能力边界
+
+当前“信令事件日志”功能记录的是 Android 系统公开接口可获得的网络状态事件，例如服务状态变化、LTE/NR/UMTS/GSM 等网络类型变化、基于 PCI 变化推断的切换事件，以及 RSRP 变化事件。它不是 LTE/NR 协议栈信令解析器，不能解析完整的 RRC、NAS、MAC、RLC、PDCP 或基带原始信令消息。
+
+如需完整 LTE/NR 信令分析，通常需要工程机、root/厂商权限、Qualcomm DIAG/QXDM/QCAT、modem log、Radio HAL/vendor 私有接口，或基站侧/测试仪表日志等更底层的数据源。
+
 ## English
 
 CellSentinelApp is an Android field tool for cellular network monitoring, drive testing, and on-site troubleshooting. It reads the current mobile network state from the device, displays key radio metrics for LTE, 5G NR, WCDMA, and GSM, and combines maps, GPS, Wi-Fi, speed tests, and logs to help users understand coverage, signal quality, and network changes while moving.
@@ -56,7 +66,7 @@ CellSentinelApp is an Android field tool for cellular network monitoring, drive 
 - Export and playback: export drive-test records to CSV / KML and replay CSV records on the map.
 - Wi-Fi tools: view current Wi-Fi details, scan nearby access points, and overlay Wi-Fi markers on the drive-test map.
 - Device and location panels: inspect Android device, location, and network information.
-- Signaling log: record important network-change events and export them to CSV.
+- Signaling event log: records service state changes, RAT changes, PCI-change based handover hints, and signal-strength changes through Android Telephony APIs, with CSV export.
 - Speed test: supports public Cloudflare speed testing and custom server testing.
 - Server integration: configurable primary and backup server URLs for uploading signal snapshots and drive-test records.
 
@@ -86,11 +96,17 @@ Command-line debug build:
 
 The app requests location, phone state, internet, and Wi-Fi permissions. These permissions are used to read cellular network data, record drive-test tracks, scan Wi-Fi, access map tiles, run speed tests, and upload data.
 
+### Capability Boundary
+
+The current signaling event log records network-state events exposed by Android public APIs, such as service state changes, LTE/NR/UMTS/GSM network type changes, handover hints inferred from PCI changes, and RSRP changes. It is not a full LTE/NR protocol signaling decoder and does not parse complete RRC, NAS, MAC, RLC, PDCP, or raw modem signaling messages.
+
+Full LTE/NR signaling analysis usually requires lower-level data sources such as engineering devices, root/vendor privileges, Qualcomm DIAG/QXDM/QCAT, modem logs, Radio HAL/vendor private interfaces, or base-station/test-equipment logs.
+
 ## 联系作者 / Contact
 
 微信二维码 / WeChat QR Code:
 
-![WeChat QR Code](app/src/main/res/author/authorwechat.png)
+![WeChat QR Code](app/src/main/res/drawable/author/authorwechat.png)
 
 ## 开源声明 / Open Source Notice
 

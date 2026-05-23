@@ -327,6 +327,19 @@
                 android:gravity="center"
                 android:text="0 / 0 条" />
 
+            <!-- Signal parameters during playback -->
+            <TextView
+                android:id="@+id/tv_playback_signal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="RSRP — dBm  SINR —  RSRQ —  PCI —"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textColor="#FF1565C0"
+                android:textStyle="bold"
+                android:gravity="center" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -371,6 +384,8 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- ── Mini signal chart (visible during recording) ───────────── -->
+    <!-- marginEnd=150dp and marginBottom=115dp ensures no overlap with
+         any compass child button at max 96dp expansion radius -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_mini_chart"
         android:layout_width="match_parent"
@@ -378,8 +393,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="88dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="150dp"
+        android:layout_marginBottom="115dp"
         android:visibility="gone"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"

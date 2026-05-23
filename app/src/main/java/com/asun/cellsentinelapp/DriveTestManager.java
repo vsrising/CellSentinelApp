@@ -24,8 +24,8 @@ import java.util.Locale;
 
 public class DriveTestManager implements LocationListener {
 
-    private static final long MIN_TIME_MS   = 2000;  // 2 seconds
-    private static final float MIN_DIST_M   = 5f;    // 5 metres
+    private static final long MIN_TIME_MS   = 1000;  // 1 second
+    private static final float MIN_DIST_M   = 2f;    // 2 metres
 
     public interface StateListener {
         void onLocationUpdate(Location location, DriveTestRecord newRecord);
@@ -115,9 +115,7 @@ public class DriveTestManager implements LocationListener {
         DriveTestRecord lastRecord = null;
         for (int i = 0; i < sims.size(); i++) {
             if (mTestSimIndex >= 0 && i != mTestSimIndex) continue;
-            DriveTestRecord rec = new DriveTestRecord(
-                    location.getLatitude(), location.getLongitude(),
-                    location.getAccuracy(), sims.get(i));
+            DriveTestRecord rec = new DriveTestRecord(location, sims.get(i));
             mRecords.add(rec);
             lastRecord = rec;
         }

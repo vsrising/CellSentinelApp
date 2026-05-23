@@ -50,6 +50,12 @@ public class ToolsFragment extends Fragment {
         mEtLon2        = root.findViewById(R.id.et_lon2);
         mTvBearingResult = root.findViewById(R.id.tv_bearing_result);
 
+        root.findViewById(R.id.btn_open_agent).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new AgentFragment())
+                        .addToBackStack(null)
+                        .commit());
+
         root.findViewById(R.id.btn_open_signaling_log).setOnClickListener(v ->
                 requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new SignalingLogFragment())

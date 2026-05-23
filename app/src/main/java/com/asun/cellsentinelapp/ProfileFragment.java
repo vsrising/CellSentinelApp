@@ -26,6 +26,11 @@ public class ProfileFragment extends Fragment {
     private Button   mBtnUploadSignal;
     private View     mCardUser;
 
+    private EditText mEtHermesUrl;
+    private EditText mEtHermesToken;
+    private EditText mEtHermesModel;
+    private Button   mBtnSaveHermes;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -44,6 +49,15 @@ public class ProfileFragment extends Fragment {
         mEtBackupServerUrl = root.findViewById(R.id.et_backup_server_url);
         mEtServerUrl.setText(SettingUtils.getServerUrl(requireContext()));
         mEtBackupServerUrl.setText(SettingUtils.getBackupServerUrl(requireContext()));
+
+        mEtHermesUrl   = root.findViewById(R.id.et_hermes_url);
+        mEtHermesToken = root.findViewById(R.id.et_hermes_token);
+        mEtHermesModel = root.findViewById(R.id.et_hermes_model);
+        mBtnSaveHermes = root.findViewById(R.id.btn_save_hermes);
+        mEtHermesUrl.setText(SettingUtils.getHermesUrl(requireContext()));
+        mEtHermesToken.setText(SettingUtils.getHermesToken(requireContext()));
+        mEtHermesModel.setText(SettingUtils.getHermesModel(requireContext()));
+        mBtnSaveHermes.setOnClickListener(v -> saveHermesSettings());
 
         mBtnSaveUrl.setOnClickListener(v -> saveServerUrl());
         mBtnLogin.setOnClickListener(v -> goToLogin());
@@ -120,6 +134,16 @@ public class ProfileFragment extends Fragment {
                         if (mBtnUploadSignal != null) mBtnUploadSignal.setEnabled(true);
                     }
                 });
+    }
+
+    private void saveHermesSettings() {
+        SettingUtils.setHermesUrl(requireContext(),
+                mEtHermesUrl.getText().toString().trim());
+        SettingUtils.setHermesToken(requireContext(),
+                mEtHermesToken.getText().toString().trim());
+        SettingUtils.setHermesModel(requireContext(),
+                mEtHermesModel.getText().toString().trim());
+        toast("智能体 设置已保存");
     }
 
     private void toast(String msg) {

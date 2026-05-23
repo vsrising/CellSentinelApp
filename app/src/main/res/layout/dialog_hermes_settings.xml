@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="接口地址"
+        android:textSize="12sp"
+        android:textColor="#FF757575" />
+
+    <EditText
+        android:id="@+id/et_hermes_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="http://100.99.178.106:8642"
+        android:inputType="textUri"
+        android:maxLines="1"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="访问令牌 (Bearer Token)"
+        android:textSize="12sp"
+        android:textColor="#FF757575" />
+
+    <EditText
+        android:id="@+id/et_hermes_token"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="admin123"
+        android:inputType="textPassword"
+        android:maxLines="1"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="模型名称（留空自动获取）"
+        android:textSize="12sp"
+        android:textColor="#FF757575" />
+
+    <EditText
+        android:id="@+id/et_hermes_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="自动获取"
+        android:inputType="text"
+        android:maxLines="1"
+        android:textSize="13sp" />
+
+</LinearLayout>

@@ -119,7 +119,7 @@ public class SettingUtils {
     private static final String KEY_HERMES_MODEL = "hermes_model";
 
     public static final String DEFAULT_HERMES_URL   = "http://100.99.178.106:8642";
-    public static final String DEFAULT_HERMES_TOKEN = "yulanrui";
+    public static final String DEFAULT_HERMES_TOKEN = "admin123";
 
     public static String getHermesUrl(Context ctx) {
         return prefs(ctx).getString(KEY_HERMES_URL, DEFAULT_HERMES_URL);
