@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -19,17 +19,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/tv_operator"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15sp"
-                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/textColorPrimary"
                 android:text="—" />
 
@@ -38,16 +37,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="—"
-                android:textSize="11sp"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
                 android:textStyle="bold"
                 android:textColor="@color/white"
                 android:background="@color/colorPrimary"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp" />
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp" />
 
         </LinearLayout>
 
-        <!-- ── Three gauges ──────────────────────────────────────────── -->
+        <!-- ── Three signal gauges (DO NOT MODIFY these views) ──────── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,27 +78,39 @@
 
         <!-- ── Cell identity card ────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="6dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:padding="14dp">
 
-                <!-- Row 1: CI/eNB + PCI -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="4dp">
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="16dp"
+                        android:background="@color/colorPrimary"
+                        android:layout_marginEnd="8dp" />
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:text="小区标识" />
+                </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
                     <TextView style="@style/CellLabel" android:text="CI / eNB" />
                     <TextView android:id="@+id/tv_ci_val"
                         style="@style/CellValue"
@@ -110,13 +121,17 @@
                         android:layout_weight="1" />
                 </LinearLayout>
 
-                <!-- Row 2: TAC + MCC/MNC -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorDivider"
+                    android:layout_marginBottom="6dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="4dp">
-
+                    android:layout_marginBottom="6dp">
                     <TextView style="@style/CellLabel" android:text="TAC" />
                     <TextView android:id="@+id/tv_tac_val"
                         style="@style/CellValue"
@@ -127,12 +142,16 @@
                         android:layout_weight="1" />
                 </LinearLayout>
 
-                <!-- Row 3: EARFCN + Band decode -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorDivider"
+                    android:layout_marginBottom="6dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <TextView style="@style/CellLabel" android:text="EARFCN" />
                     <TextView android:id="@+id/tv_earfcn_val"
                         style="@style/CellValue"
@@ -149,51 +168,58 @@
 
         <!-- ── Signal history chart ───────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="6dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="8dp">
+                android:padding="14dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="信号历史 (120s)"
-                    android:textSize="11sp"
-                    android:textColor="@color/textColorSecondary"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="16dp"
+                        android:background="@color/colorAccent"
+                        android:layout_marginEnd="8dp" />
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="信号历史 (120s)" />
+                </LinearLayout>
 
                 <com.asun.cellsentinelapp.view.SignalChartView
                     android:id="@+id/chart_signal"
                     android:layout_width="match_parent"
-                    android:layout_height="160dp" />
+                    android:layout_height="150dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ── Network latency test ───────────────────────────────────── -->
+        <!-- ── Network latency ───────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="6dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:padding="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -201,24 +227,28 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="16dp"
+                        android:background="@color/colorNr"
+                        android:layout_marginEnd="8dp" />
+
                     <TextView
+                        style="@style/SectionTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="网络延迟"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textColorPrimary" />
+                        android:text="网络延迟" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_ping"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:text="测试"
                         android:textAllCaps="false"
-                        android:textSize="12sp"
-                        android:paddingHorizontal="12dp" />
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:paddingHorizontal="14dp" />
 
                 </LinearLayout>
 
@@ -226,8 +256,8 @@
                     android:id="@+id/tv_ping_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="11sp"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
                     android:fontFamily="monospace"
                     android:textColor="@color/textColorSecondary"
                     android:text="点击测试按钮检测服务器延迟" />
@@ -237,35 +267,40 @@
 
         <!-- ── Neighbor cells ─────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="6dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:padding="14dp">
 
-                <TextView
-                    android:id="@+id/tv_nbr_header"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="邻区 (0)"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="16dp"
+                        android:background="@color/colorAccentDark"
+                        android:layout_marginEnd="8dp" />
+                    <TextView
+                        android:id="@+id/tv_nbr_header"
+                        style="@style/SectionTitle"
+                        android:text="邻区 (0)" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_neighbors"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="10.5sp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
                     android:fontFamily="monospace"
                     android:lineSpacingExtra="2dp"
                     android:textColor="@color/textColorPrimary"

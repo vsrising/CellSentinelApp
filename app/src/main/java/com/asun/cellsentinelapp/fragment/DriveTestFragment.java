@@ -1004,8 +1004,8 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void showServingCellInfo(LteCellInfo cell) {
         if (mCardCellInfo == null) return;
         StringBuilder sb = new StringBuilder();
-        if (!cell.operator.isEmpty())     sb.append(cell.operator).append("  ");
-        if (!cell.frequencyBand.isEmpty()) sb.append(cell.frequencyBand);
+//        if (!cell.operator.isEmpty())     sb.append(cell.operator).append("  ");
+//        if (!cell.frequencyBand.isEmpty()) sb.append(cell.frequencyBand);
         sb.append("\n");
         if (!cell.enodebName.isEmpty())   sb.append("基站: ").append(cell.enodebName).append("\n");
         if (!cell.cellName.isEmpty())     sb.append("小区: ").append(cell.cellName).append("\n");
@@ -1029,8 +1029,8 @@ public class DriveTestFragment extends Fragment implements DriveTestManager.Stat
     private void showServingCellInfo(NrCellInfo cell) {
         if (mCardCellInfo == null) return;
         StringBuilder sb = new StringBuilder();
-        if (!cell.operator.isEmpty())      sb.append(cell.operator).append("  ");
-        if (!cell.frequencyBand.isEmpty()) sb.append(cell.frequencyBand).append(" NR");
+//        if (!cell.operator.isEmpty())      sb.append(cell.operator).append("  ");
+//        if (!cell.frequencyBand.isEmpty()) sb.append(cell.frequencyBand).append(" NR");
         sb.append("\n");
         if (!cell.gnodebName.isEmpty())    sb.append("基站: ").append(cell.gnodebName).append("\n");
         if (!cell.cellName.isEmpty())      sb.append("小区: ").append(cell.cellName).append("\n");

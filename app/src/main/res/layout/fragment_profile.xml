@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -13,52 +13,64 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- User info card -->
+        <!-- ── 用户信息 ──────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/colorPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp"
+                android:gravity="center_horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="用户信息"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorPrimary" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/colorWhite20"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="👤"
+                        android:textSize="24sp" />
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/tv_nick_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="—"
-                    android:textSize="14sp"
-                    android:paddingTop="8dp" />
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
                     android:id="@+id/tv_login_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="未登录"
-                    android:textSize="13sp"
-                    android:textColor="@color/textColorSecondary"
-                    android:paddingTop="4dp" />
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="@color/colorWhite60" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Server settings card -->
+        <!-- ── 服务器设置 ─────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -66,48 +78,63 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="服务器设置"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorPrimary" />
-
-                <EditText
-                    android:id="@+id/et_server_url"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="主服务器地址（如 http://192.168.1.1:8080）"
-                    android:inputType="textUri"
-                    android:maxLines="1"
-                    android:layout_marginTop="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="14dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorPrimary" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="服务器设置" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/et_backup_server_url"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="备用服务器地址（可留空）"
-                    android:inputType="textUri"
-                    android:maxLines="1"
-                    android:layout_marginTop="6dp" />
+                    android:hint="主服务器地址"
+                    style="@style/AppTextInput"
+                    app:helperText="例如 http://192.168.1.1:8080"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_server_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <Button
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="备用服务器地址"
+                    style="@style/AppTextInput"
+                    app:helperText="可留空"
+                    android:layout_marginBottom="14dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_backup_server_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_url"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="保存"
-                    android:textAllCaps="false"
-                    android:layout_marginTop="8dp" />
+                    android:text="保存地址"
+                    android:textAllCaps="false" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Actions card -->
+        <!-- ── 数据上报 ──────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -115,27 +142,31 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="数据上报"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorPrimary" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="14dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorAccent" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="数据上报" />
+                </LinearLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_upload_signal"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="立即上报当前信号快照"
-                    android:textAllCaps="false"
-                    android:layout_marginTop="12dp" />
+                    android:textAllCaps="false" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Hermes AI settings card -->
+        <!-- ── Hermes AI 设置 ─────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp">
@@ -146,64 +177,84 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Hermes AI 设置"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorPrimary" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="14dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorNr" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="Hermes AI 设置" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/et_hermes_url"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="AI 接口地址"
-                    android:inputType="textUri"
-                    android:maxLines="1"
-                    android:layout_marginTop="8dp" />
+                    style="@style/AppTextInput"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_hermes_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/et_hermes_token"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="访问令牌 (Bearer Token)"
-                    android:inputType="textPassword"
-                    android:maxLines="1"
-                    android:layout_marginTop="6dp" />
+                    style="@style/AppTextInput"
+                    app:endIconMode="password_toggle"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_hermes_token"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/et_hermes_model"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="模型名称（留空自动获取）"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:layout_marginTop="6dp" />
+                    android:hint="模型名称"
+                    style="@style/AppTextInput"
+                    app:helperText="留空自动获取"
+                    android:layout_marginBottom="14dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_hermes_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_hermes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="保存AI设置"
-                    android:textAllCaps="false"
-                    android:layout_marginTop="8dp" />
+                    android:text="保存 AI 设置"
+                    android:textAllCaps="false" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Login / Logout -->
-        <Button
+        <!-- ── 登录 / 退出 ────────────────────────────────────────────── -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_login"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:text="登录后台"
             android:textAllCaps="false"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:layout_marginBottom="8dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_logout"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="退出登录"

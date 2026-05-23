@@ -2,56 +2,77 @@
 <resources>
 
     <!-- ══ Primary brand palette ══════════════════════════════════════════ -->
-    <!--   Deep navy-blue: authority, precision, professional telecom look  -->
-    <color name="colorPrimary">#1565C0</color>           <!-- Blue 800  – main brand blue -->
-    <color name="colorPrimaryDark">#0D47A1</color>       <!-- Blue 900  – toolbar / status bar -->
-    <color name="colorPrimaryLight">#1976D2</color>      <!-- Blue 700  – buttons / hover states -->
-    <color name="colorPrimaryTintBg">#1A1565C0</color>   <!-- 10 % blue – LTE badge background -->
+    <color name="colorPrimary">#1565C0</color>
+    <color name="colorPrimaryDark">#0D47A1</color>
+    <color name="colorPrimaryLight">#1976D2</color>
+    <color name="colorPrimaryTintBg">#1A1565C0</color>
+    <color name="colorPrimaryContainer">#D8E4FF</color>
+    <color name="colorOnPrimaryContainer">#001849</color>
 
-    <!-- ══ Accent / Secondary ═════════════════════════════════════════════ -->
-    <!--   Electric cyan: tech, data-flow, live indicators                  -->
-    <color name="colorAccent">#00ACC1</color>            <!-- Cyan 600  – main accent -->
-    <color name="colorAccentDark">#007C91</color>        <!-- Cyan 800  – accent pressed state -->
+    <!-- ══ Secondary (Cyan) ═══════════════════════════════════════════════ -->
+    <color name="colorAccent">#00ACC1</color>
+    <color name="colorAccentDark">#007C91</color>
+    <color name="colorSecondaryContainer">#B2EBF2</color>
+    <color name="colorOnSecondaryContainer">#001F24</color>
 
-    <!-- ══ NR / 5G indicator ══════════════════════════════════════════════ -->
-    <color name="colorNr">#6A1B9A</color>                <!-- Purple 900 – NR / 5G badge -->
-    <color name="colorNrBg">#1A6A1B9A</color>            <!-- 10 % purple – NR badge bg -->
+    <!-- ══ Tertiary (NR/5G Purple) ════════════════════════════════════════ -->
+    <color name="colorNr">#6A1B9A</color>
+    <color name="colorNrBg">#1A6A1B9A</color>
+    <color name="colorTertiaryContainer">#EEDCFF</color>
 
-    <!-- ══ Background / Surface ═══════════════════════════════════════════ -->
-    <color name="background">#F0F4FF</color>             <!-- Indigo 50 – cool blue-tinted screen bg -->
-    <color name="colorSurface">#FFFFFF</color>           <!-- Pure white surface / card -->
-    <color name="colorSurfaceFaint">#FAFAFA</color>      <!-- Near-white secondary card surface -->
-    <color name="colorCardRecord">#F2F5F5</color>        <!-- Drive-test record list card -->
-    <color name="colorCardAI">#E3F2FD</color>            <!-- AI / Agent context card (Light Blue 50) -->
-    <color name="colorCardDriveInfo">#F2F4F8FF</color>   <!-- Drive info card (95 % opaque pale blue) -->
-    <color name="colorMapOverlay">#F2FFFFFF</color>      <!-- Near-white card overlaid on map -->
-    <color name="colorMapOverlayChart">#E8FFFFFF</color> <!-- Chart card overlaid on map -->
-    <color name="colorHudBg">#E6001028</color>           <!-- Dark navy HUD overlay (drive test) -->
-    <color name="colorDiscBg">#CC001028</color>          <!-- 80 % navy – compass disc background -->
+    <!-- ══ Surface tonal scale ════════════════════════════════════════════ -->
+    <color name="background">#F8F9FF</color>
+    <color name="colorSurface">#F8F9FF</color>
+    <color name="colorSurfaceContainerLowest">#FFFFFF</color>
+    <color name="colorSurfaceContainerLow">#F2F3FA</color>
+    <color name="colorSurfaceContainer">#ECEFF5</color>
+    <color name="colorSurfaceContainerHigh">#E6E8EF</color>
+    <color name="colorSurfaceContainerHighest">#E1E2EA</color>
+    <color name="colorSurfaceFaint">#F2F3FA</color>
+
+    <!-- ══ Surface-specific card colors ══════════════════════════════════ -->
+    <color name="colorCardAI">#E3F2FD</color>
+    <color name="colorCardRecord">#F2F5F5</color>
+    <color name="colorCardDriveInfo">#F2F4F8FF</color>
+    <color name="colorMapOverlay">#F2FFFFFF</color>
+    <color name="colorMapOverlayChart">#E8FFFFFF</color>
+    <color name="colorHudBg">#E6001028</color>
+    <color name="colorDiscBg">#CC001028</color>
+
+    <!-- ══ Error ═════════════════════════════════════════════════════════ -->
+    <color name="colorError">#B3261E</color>
+    <color name="colorErrorContainer">#F9DEDC</color>
+
+    <!-- ══ Outline ════════════════════════════════════════════════════════ -->
+    <color name="colorOutline">#73777F</color>
+    <color name="colorOutlineVariant">#C3C7CF</color>
+    <color name="colorDivider">#1A000000</color>
+
+    <!-- ══ On-surface ═════════════════════════════════════════════════════ -->
+    <color name="colorOnSurface">#1A1C22</color>
+    <color name="colorOnSurfaceVariant">#43474F</color>
+    <color name="colorSurfaceVariant">#DFE2EB</color>
 
     <!-- ══ Text ═══════════════════════════════════════════════════════════ -->
-    <color name="textColorPrimary">#DE000000</color>     <!-- 87 % black – primary body text -->
-    <color name="textColorMedium">#CC000000</color>      <!-- 80 % black – medium emphasis -->
-    <color name="textColorSecondary">#99000000</color>   <!-- 60 % black – secondary / caption -->
-    <color name="textColorHint">#FF757575</color>        <!-- Gray 600   – input placeholders -->
-    <color name="textColorBlack">#FF000000</color>       <!-- Full black  – compass labels -->
+    <color name="textColorPrimary">#DE000000</color>
+    <color name="textColorMedium">#CC000000</color>
+    <color name="textColorSecondary">#99000000</color>
+    <color name="textColorHint">#FF757575</color>
+    <color name="textColorBlack">#FF000000</color>
 
-    <!-- ══ On-dark / overlays ══════════════════════════════════════════════ -->
-    <color name="white">#FFFFFFFF</color>                <!-- White text on dark surfaces -->
-    <color name="colorWhite80">#CCFFFFFF</color>         <!-- 80 % white – stroke on dark bg -->
-    <color name="colorWhite60">#99FFFFFF</color>         <!-- 60 % white – stroke on dark bg -->
-    <color name="colorWhite20">#33FFFFFF</color>      <!-- 20 % white – active nav indicator -->
+    <!-- ══ On-dark / overlay text ══════════════════════════════════════════ -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorWhite80">#CCFFFFFF</color>
+    <color name="colorWhite60">#99FFFFFF</color>
+    <color name="colorWhite20">#33FFFFFF</color>
 
-    <!-- ══ Divider ════════════════════════════════════════════════════════ -->
-    <color name="colorDivider">#1A000000</color>         <!-- 10 % black – hairline separator -->
-
-    <!-- ══ Legacy aliases: referenced by themes.xml ═══════════════════════ -->
-    <color name="purple_200">#01447A</color>           <!-- Blue 200: dark-mode primary tint -->
-    <color name="purple_500">#FF1565C0</color>           <!-- = colorPrimary -->
-    <color name="purple_700">#FF0D47A1</color>           <!-- = colorPrimaryDark -->
-    <color name="teal_200">#FF80DEEA</color>             <!-- Cyan 200: dark-mode secondary -->
-    <color name="teal_700">#FF00ACC1</color>             <!-- = colorAccent -->
-    <color name="black">#CECBCB</color>                  <!-- User-set value -->
-    <color name="text_primary">#DEB4ADAD</color>         <!-- = textColorPrimary -->
+    <!-- ══ Legacy aliases ════════════════════════════════════════════════ -->
+    <color name="purple_200">#01447A</color>
+    <color name="purple_500">#FF1565C0</color>
+    <color name="purple_700">#FF0D47A1</color>
+    <color name="teal_200">#FF80DEEA</color>
+    <color name="teal_700">#FF00ACC1</color>
+    <color name="black">#CECBCB</color>
+    <color name="text_primary">#DEB4ADAD</color>
 
 </resources>

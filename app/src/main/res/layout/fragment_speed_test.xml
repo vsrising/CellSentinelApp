@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?attr/colorSurface"
     android:padding="12dp">
 
     <LinearLayout
@@ -11,183 +11,179 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Speed gauge card -->
+        <!-- ── 测速主卡 ─────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
+            app:cardBackgroundColor="@color/colorPrimary">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
+                android:padding="24dp"
                 android:gravity="center_horizontal">
 
                 <TextView
-                    android:id="@+id/tv_speed_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="—"
-                    android:textSize="48sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorPrimary"
+                    android:text="当前速度"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="@color/colorWhite60"
+                    android:letterSpacing="0.08"
                     android:layout_marginBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tv_speed_unit"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mbps"
-                    android:textSize="16sp"
-                    android:textColor="@color/textColorSecondary"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:id="@+id/tv_speed_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textSize="58sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white" />
+                    <TextView
+                        android:id="@+id/tv_speed_unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" Mbps"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="@color/colorWhite60"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="2dp" />
+                </LinearLayout>
 
+                <!-- Download / Upload / Latency stats -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="20dp">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="下载"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColorSecondary" />
-                        <TextView
-                            android:id="@+id/tv_download_speed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="↓ 下载"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="@color/colorWhite60" />
+                        <TextView android:id="@+id/tv_download_speed"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="— Mbps"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textColorPrimary" />
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="@color/white" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="上传"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColorSecondary" />
-                        <TextView
-                            android:id="@+id/tv_upload_speed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                    <View android:layout_width="1dp" android:layout_height="match_parent"
+                        android:background="@color/colorWhite20" />
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="↑ 上传"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="@color/colorWhite60" />
+                        <TextView android:id="@+id/tv_upload_speed"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="— Mbps"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textColorPrimary" />
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="@color/colorSecondaryContainer" />
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="延迟"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColorSecondary" />
-                        <TextView
-                            android:id="@+id/tv_latency"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                    <View android:layout_width="1dp" android:layout_height="match_parent"
+                        android:background="@color/colorWhite20" />
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="⏱ 延迟"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="@color/colorWhite60" />
+                        <TextView android:id="@+id/tv_latency"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="— ms"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textColorPrimary" />
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="@color/white" />
                     </LinearLayout>
+
                 </LinearLayout>
 
+                <!-- Target selector -->
                 <RadioGroup
                     android:id="@+id/rg_speed_target"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="16dp">
                     <RadioButton
                         android:id="@+id/rb_speed_server"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="自建服务器"
-                        android:checked="true"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/white"
+                        android:buttonTint="@color/colorSecondaryContainer"
+                        android:checked="true" />
                     <RadioButton
                         android:id="@+id/rb_speed_public"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="公网(Cloudflare)"
-                        android:layout_marginStart="16dp"
-                        android:textColor="@color/textColorPrimary" />
+                        android:text="公网 (Cloudflare)"
+                        android:textColor="@color/white"
+                        android:buttonTint="@color/colorSecondaryContainer"
+                        android:layout_marginStart="16dp" />
                 </RadioGroup>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_start_speed_test"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="160dp"
+                    android:layout_height="48dp"
                     android:text="开始测速"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    app:backgroundTint="@color/colorWhite20"
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_speed_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="12sp"
-                    android:textColor="@color/textColorSecondary"
-                    android:layout_marginTop="8dp" />
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textColor="@color/colorWhite60"
+                    android:layout_marginTop="10dp" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- History -->
+        <!-- ── 历史记录 ───────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="@color/colorSurfaceFaint">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="历史记录"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textColorPrimary"
-                    android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="12dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="16dp"
+                        android:background="@color/colorPrimary" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="历史记录" />
+                </LinearLayout>
                 <TextView
                     android:id="@+id/tv_speed_history"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@color/textColorPrimary"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
                     android:fontFamily="monospace"
-                    android:lineSpacingMultiplier="1.4"
+                    android:lineSpacingMultiplier="1.5"
                     android:text="暂无记录" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

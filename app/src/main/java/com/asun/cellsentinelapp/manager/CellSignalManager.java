@@ -283,22 +283,38 @@ public class CellSignalManager {
         }
 
         private void parseCellInfoList(List<CellInfo> list) {
+            // Reset all serving-cell fields so stale data from the previous parse never bleeds
+            // into the UI when the cell list no longer contains that RAT.
+            clearServingData();
             mData.neighborCells.clear();
             mData.neighborCellData.clear();
 
             for (CellInfo cellInfo : list) {
+                // Determine whether this cell belongs to this SIM's subscription.
+                // Android R+ exposes CellInfo.getSubscriptionId() via public API.
+                boolean subIdMatch = true;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                        && mData.subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                    try {
+                        int subId = (int) CellInfo.class
+                                .getMethod("getSubscriptionId")
+                                .invoke(cellInfo);
+                        subIdMatch = (subId == mData.subscriptionId);
+                    } catch (Exception ignored) {}
+                }
+
                 if (cellInfo.isRegistered()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                            && mData.subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                        try {
-                            int subId = (int) CellInfo.class
-                                    .getMethod("getSubscriptionId")
-                                    .invoke(cellInfo);
-                            if (subId != mData.subscriptionId) continue;
-                        } catch (Exception ignored) {}
+                    if (!subIdMatch) continue;
+                    // Pre-R fallback: filter by this SIM's reported RAT to prevent
+                    // the other SIM's registered cell from being parsed into our data.
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+                            && mData.subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID
+                            && !ratMatchesThisSim(cellInfo)) {
+                        continue;
                     }
                     parseServingCell(cellInfo);
                 } else {
+                    if (!subIdMatch) continue; // R+: keep neighbor list per-SIM
                     NeighborCell nc = buildNeighborCell(cellInfo);
                     if (nc != null) {
                         mData.neighborCellData.add(nc);
@@ -306,6 +322,51 @@ public class CellSignalManager {
                     }
                 }
             }
+        }
+
+        private void clearServingData() {
+            mData.lte_MCC = mData.lte_MNC = mData.lte_CI = mData.lte_PCI = Integer.MAX_VALUE;
+            mData.lte_TAC = mData.lte_EARFCN = mData.lte_RSRP = mData.lte_RSRQ = mData.lte_SINR = Integer.MAX_VALUE;
+            mData.lte_TA  = mData.lte_CQI = mData.lte_bandwidth = Integer.MAX_VALUE;
+            mData.nr_PCI  = mData.nr_NRARFCN = mData.nr_SSRSRP = mData.nr_SSRSRQ = mData.nr_SSSINR = Integer.MAX_VALUE;
+            mData.nr_TAC  = mData.nr_CSIRSRP = mData.nr_CSIRSRQ = mData.nr_CSISINR = Integer.MAX_VALUE;
+            mData.wcdma_MCC = mData.wcdma_MNC = mData.wcdma_LAC = mData.wcdma_CID
+                            = mData.wcdma_PSC = mData.wcdma_RSSI = Integer.MAX_VALUE;
+            mData.gsm_MCC = mData.gsm_MNC = mData.gsm_LAC = mData.gsm_CID = mData.gsm_RSSI = Integer.MAX_VALUE;
+            mData.cdma_SID = mData.cdma_NID = mData.cdma_BSID = mData.cdma_RxPwr = mData.cdma_EcIo = Integer.MAX_VALUE;
+        }
+
+        @SuppressLint("MissingPermission")
+        private boolean ratMatchesThisSim(CellInfo cellInfo) {
+            int nt = mTM.getNetworkType();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                    && cellInfo instanceof android.telephony.CellInfoNr) {
+                return nt == TelephonyManager.NETWORK_TYPE_NR;
+            }
+            if (cellInfo instanceof CellInfoLte) {
+                return nt == TelephonyManager.NETWORK_TYPE_LTE
+                        || nt == TelephonyManager.NETWORK_TYPE_NR; // NSA 5G anchor
+            }
+            if (cellInfo instanceof CellInfoWcdma) {
+                return nt == TelephonyManager.NETWORK_TYPE_UMTS
+                        || nt == TelephonyManager.NETWORK_TYPE_HSPA
+                        || nt == TelephonyManager.NETWORK_TYPE_HSPAP
+                        || nt == TelephonyManager.NETWORK_TYPE_HSDPA
+                        || nt == TelephonyManager.NETWORK_TYPE_HSUPA;
+            }
+            if (cellInfo instanceof CellInfoGsm) {
+                return nt == TelephonyManager.NETWORK_TYPE_GSM
+                        || nt == TelephonyManager.NETWORK_TYPE_GPRS
+                        || nt == TelephonyManager.NETWORK_TYPE_EDGE;
+            }
+            if (cellInfo instanceof CellInfoCdma) {
+                return nt == TelephonyManager.NETWORK_TYPE_CDMA
+                        || nt == TelephonyManager.NETWORK_TYPE_EVDO_0
+                        || nt == TelephonyManager.NETWORK_TYPE_EVDO_A
+                        || nt == TelephonyManager.NETWORK_TYPE_EVDO_B
+                        || nt == TelephonyManager.NETWORK_TYPE_1xRTT;
+            }
+            return true;
         }
 
         private void parseServingCell(CellInfo cellInfo) {

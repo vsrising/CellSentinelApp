@@ -4,82 +4,90 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="?attr/colorSurface">
 
-    <!-- Toolbar row -->
-    <LinearLayout
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:gravity="center_vertical"
-        android:background="@color/colorSurface">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="信令事件日志"
+        app:titleTextColor="@color/white"
+        app:titleTextAppearance="?attr/textAppearanceTitleMedium">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="信令事件日志"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:layout_marginStart="8dp" />
-
-        <Button
-            android:id="@+id/btn_sig_ai"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <!-- Toolbar action buttons -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AI分析"
-            android:textAllCaps="false" />
+            android:layout_gravity="end"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingEnd="4dp">
 
-        <Button
-            android:id="@+id/btn_sig_export"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="导出"
-            android:textAllCaps="false" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sig_ai"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI分析"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btn_sig_toggle"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="开始监听"
-            android:textAllCaps="false" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sig_export"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="导出"
+                android:textAllCaps="false"
+                android:textColor="@color/colorWhite60" />
 
-        <Button
-            android:id="@+id/btn_sig_clear"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清除"
-            android:textAllCaps="false" />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sig_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开始监听"
+                android:textAllCaps="false"
+                app:backgroundTint="@color/colorWhite20"
+                android:textColor="@color/white"
+                android:layout_marginHorizontal="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sig_clear"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清除"
+                android:textAllCaps="false"
+                android:textColor="@color/colorWhite60" />
+
+        </LinearLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorDivider" />
+        android:background="@color/colorOutlineVariant" />
 
-    <!-- SIM selection chips -->
+    <!-- SIM filter chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorSurface"
+        android:background="?attr/colorSurface"
         android:scrollbars="none">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="6dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_sim_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="全部SIM"
+                android:text="全部 SIM"
                 android:checkable="true"
                 android:checked="true"
                 style="@style/AppChip"
@@ -105,20 +113,20 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorDivider" />
+        android:background="@color/colorOutlineVariant" />
 
-    <!-- Filter chips -->
+    <!-- Event type filter chips -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorSurface"
+        android:background="@color/colorSurfaceContainerLow"
         android:scrollbars="none">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="6dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_filter_all"
                 android:layout_width="wrap_content"
@@ -140,7 +148,7 @@
                 android:id="@+id/chip_filter_rat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="RAT变更"
+                android:text="RAT 变更"
                 android:checkable="true"
                 style="@style/AppChip"
                 android:layout_marginEnd="6dp" />
@@ -157,25 +165,26 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorDivider" />
+        android:background="@color/colorOutlineVariant" />
 
-    <!-- Log list -->
+    <!-- Log output area -->
     <ScrollView
         android:id="@+id/sv_sig_log"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/background"
+        android:background="@color/colorSurfaceContainerLowest"
         android:fillViewport="true">
 
         <TextView
             android:id="@+id/tv_sig_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:textSize="12sp"
+            android:padding="14dp"
+            android:textAppearance="?attr/textAppearanceBodySmall"
             android:fontFamily="monospace"
-            android:lineSpacingMultiplier="1.5"
+            android:lineSpacingMultiplier="1.6"
+            android:textColor="@color/textColorPrimary"
             android:text="点击开始监听以记录信令事件..." />
 
     </ScrollView>

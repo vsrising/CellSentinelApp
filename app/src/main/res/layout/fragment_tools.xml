@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?attr/colorSurface"
     android:padding="12dp">
 
     <LinearLayout
@@ -11,60 +11,65 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- AI 智能助手入口 -->
+        <!-- ── AI 智能体 入口（主要特色卡）────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="@color/colorCardAI">
+            app:cardBackgroundColor="@color/colorPrimary">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-                <LinearLayout
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="智能体"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimaryDark" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="AI 知识问答 · 网络优化建议 · 数据分析"
-                        android:textSize="12sp"
-                        android:textColor="@color/colorPrimary"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
+                    android:text="智能体 AI"
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="知识问答 · 网络优化建议 · 信号数据分析"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="@color/colorWhite60"
+                    android:layout_marginBottom="16dp" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_open_agent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="打开 ›"
+                    android:text="立即打开"
                     android:textAllCaps="false"
-                    app:backgroundTint="@color/colorPrimaryLight" />
+                    app:backgroundTint="@color/colorWhite20"
+                    android:textColor="@color/white" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 信令日志入口 -->
+        <!-- ── 信令日志入口 ──────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="@color/colorPrimaryContainer">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -74,45 +79,53 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="LTE/NR 信令事件日志"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimary" />
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="@color/colorOnPrimaryContainer"
+                        android:layout_marginBottom="2dp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="切换/RAT变更/服务状态事件记录"
-                        android:textSize="12sp"
-                        android:textColor="@color/textColorSecondary"
-                        android:layout_marginTop="2dp" />
+                        android:text="切换 · RAT变更 · 服务状态事件记录"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="@color/colorPrimary" />
                 </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_open_signaling_log"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="查看 ›"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimary" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- CI 解析器 -->
+        <!-- ── CI 解析器 ─────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-                <TextView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="CI 解析器"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginBottom="12dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorPrimary" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="CI 解析器" />
+                </LinearLayout>
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,41 +139,51 @@
                         android:inputType="number"
                         android:imeOptions="actionDone" />
                 </com.google.android.material.textfield.TextInputLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_ci_parse"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="解析"
+                    android:textAllCaps="false"
                     android:layout_marginBottom="8dp" />
+
                 <TextView
                     android:id="@+id/tv_ci_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- EARFCN 计算器 -->
+        <!-- ── EARFCN 计算器 ─────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-                <TextView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="EARFCN / NRARFCN 计算器"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginBottom="12dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorAccent" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="EARFCN / NRARFCN 计算器" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -185,37 +208,46 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="计算" />
+                        android:text="计算"
+                        android:textAllCaps="false" />
                 </LinearLayout>
+
                 <TextView
                     android:id="@+id/tv_earfcn_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- TA 距离换算 -->
+        <!-- ── TA 距离换算 ────────────────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-                <TextView
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TA 距离换算"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginBottom="12dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorNr" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="TA 距离换算" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -240,148 +272,121 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="换算" />
+                        android:text="换算"
+                        android:textAllCaps="false" />
                 </LinearLayout>
+
                 <RadioGroup
                     android:id="@+id/rg_ta_type"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginBottom="8dp">
-                    <RadioButton
-                        android:id="@+id/rb_ta_lte"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="LTE / NR μ0"
-                        android:checked="true" />
-                    <RadioButton
-                        android:id="@+id/rb_ta_nr1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NR μ1"
-                        android:layout_marginStart="12dp" />
-                    <RadioButton
-                        android:id="@+id/rb_ta_nr2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NR μ2"
-                        android:layout_marginStart="12dp" />
-                    <RadioButton
-                        android:id="@+id/rb_ta_nr3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NR μ3"
-                        android:layout_marginStart="12dp" />
+                    <RadioButton android:id="@+id/rb_ta_lte" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="LTE / NR μ0" android:checked="true" />
+                    <RadioButton android:id="@+id/rb_ta_nr1" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="NR μ1" android:layout_marginStart="12dp" />
+                    <RadioButton android:id="@+id/rb_ta_nr2" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="NR μ2" android:layout_marginStart="12dp" />
+                    <RadioButton android:id="@+id/rb_ta_nr3" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="NR μ3" android:layout_marginStart="12dp" />
                 </RadioGroup>
+
                 <TextView
                     android:id="@+id/tv_ta_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 方位角计算器 -->
+        <!-- ── 方位角 & 距离计算器 ───────────────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppInfoCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="方位角 &amp; 距离计算器"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginBottom="12dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="18dp"
+                        android:background="@color/colorAccentDark" android:layout_marginEnd="10dp" />
+                    <TextView style="@style/SectionTitle" android:text="方位角 &amp; 距离计算器" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
                     <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="起点纬度"
-                        style="@style/AppTextInput"
-                        android:layout_marginEnd="8dp">
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:hint="起点纬度"
+                        style="@style/AppTextInput" android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_lat1"
-                            android:layout_width="match_parent"
+                            android:id="@+id/et_lat1" android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="numberDecimal|numberSigned"
-                            android:imeOptions="actionNext" />
+                            android:inputType="numberDecimal|numberSigned" android:imeOptions="actionNext" />
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="起点经度"
-                        style="@style/AppTextInput">
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:hint="起点经度" style="@style/AppTextInput">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_lon1"
-                            android:layout_width="match_parent"
+                            android:id="@+id/et_lon1" android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="numberDecimal|numberSigned"
-                            android:imeOptions="actionNext" />
+                            android:inputType="numberDecimal|numberSigned" android:imeOptions="actionNext" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="8dp">
                     <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="终点纬度"
-                        style="@style/AppTextInput"
-                        android:layout_marginEnd="8dp">
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:hint="终点纬度"
+                        style="@style/AppTextInput" android:layout_marginEnd="8dp">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_lat2"
-                            android:layout_width="match_parent"
+                            android:id="@+id/et_lat2" android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="numberDecimal|numberSigned"
-                            android:imeOptions="actionNext" />
+                            android:inputType="numberDecimal|numberSigned" android:imeOptions="actionNext" />
                     </com.google.android.material.textfield.TextInputLayout>
                     <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="终点经度"
-                        style="@style/AppTextInput">
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:hint="终点经度" style="@style/AppTextInput">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_lon2"
-                            android:layout_width="match_parent"
+                            android:id="@+id/et_lon2" android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="numberDecimal|numberSigned"
-                            android:imeOptions="actionDone" />
+                            android:inputType="numberDecimal|numberSigned" android:imeOptions="actionDone" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_bearing_calc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="计算方位角和距离"
+                    android:textAllCaps="false"
                     android:layout_marginBottom="8dp" />
+
                 <TextView
                     android:id="@+id/tv_bearing_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:fontFamily="monospace"
                     android:text="—"
                     android:lineSpacingMultiplier="1.4" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

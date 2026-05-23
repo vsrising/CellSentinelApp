@@ -1,30 +1,64 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme – forced light mode. -->
-    <style name="Theme.CellSentinelApp" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorAccent</item>
-        <item name="colorSecondaryVariant">@color/colorAccentDark</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <!-- Surface: MaterialCardView and sheet backgrounds. -->
-        <item name="colorSurface">@color/colorSurface</item>
-        <item name="colorOnSurface">@color/textColorPrimary</item>
-        <!-- Window / screen background. -->
-        <item name="android:windowBackground">@color/background</item>
-        <item name="android:colorBackground">@color/background</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-        <!-- Global text colors – drives TextInputEditText, EditText, general text. -->
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Material Design 3 – seed color: Blue #1565C0 + Cyan #00ACC1
+         ════════════════════════════════════════════════════════════════ -->
+    <style name="Theme.CellSentinelApp" parent="Theme.Material3.Light">
+
+        <!-- Primary: Navy Blue -->
+        <item name="colorPrimary">#1565C0</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#D8E4FF</item>
+        <item name="colorOnPrimaryContainer">#001849</item>
+
+        <!-- Secondary: Electric Cyan -->
+        <item name="colorSecondary">#00ACC1</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#B2EBF2</item>
+        <item name="colorOnSecondaryContainer">#001F24</item>
+
+        <!-- Tertiary: Purple (NR/5G indicator) -->
+        <item name="colorTertiary">#6A1B9A</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#EEDCFF</item>
+        <item name="colorOnTertiaryContainer">#230048</item>
+
+        <!-- Error -->
+        <item name="colorError">#B3261E</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item>
+        <item name="colorOnErrorContainer">#410E0B</item>
+
+        <!-- Surface tones (blue-tinted whites) -->
+        <item name="colorSurface">#F8F9FF</item>
+        <item name="colorOnSurface">#1A1C22</item>
+        <item name="colorSurfaceVariant">#DFE2EB</item>
+        <item name="colorOnSurfaceVariant">#43474F</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="colorSurfaceContainerLow">#F2F3FA</item>
+        <item name="colorSurfaceContainer">#ECEFF5</item>
+        <item name="colorSurfaceContainerHigh">#E6E8EF</item>
+        <item name="colorSurfaceContainerHighest">#E1E2EA</item>
+
+        <!-- Outlines -->
+        <item name="colorOutline">#73777F</item>
+        <item name="colorOutlineVariant">#C3C7CF</item>
+
+        <!-- Window -->
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+
+        <!-- Legacy text colors – drives plain TextViews -->
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
         <item name="android:textColorHint">@color/textColorHint</item>
-        <!-- Global component styles. -->
+
+        <!-- Global component styles -->
         <item name="materialCardViewStyle">@style/AppCardView</item>
         <item name="editTextStyle">@style/AppEditText</item>
         <item name="chipStyle">@style/AppChip</item>
+
     </style>
 
     <style name="Theme.CellSentinelApp.NoActionBar">
@@ -33,69 +67,78 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <!-- ── Global MaterialCardView ─────────────────────────────────────── -->
-    <style name="AppCardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardCornerRadius">8dp</item>
-        <item name="cardElevation">2dp</item>
-        <item name="cardBackgroundColor">@color/colorSurfaceFaint</item>
-        <item name="strokeColor">@color/colorPrimaryTintBg</item>
+    <!-- ── MaterialCardView – elevated (default for all cards) ──────── -->
+    <style name="AppCardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- ── MaterialCardView – outlined (info / data display cards) ──── -->
+    <style name="AppInfoCard" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">0dp</item>
         <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/colorOutlineVariant</item>
+        <item name="cardBackgroundColor">@color/colorSurfaceContainerLowest</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <!-- ── TextInputLayout – OutlinedBox.Dense (default for tools/forms) ── -->
-    <style name="AppTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-        <item name="hintTextColor">@color/textColorSecondary</item>
-        <item name="boxStrokeColor">@color/colorPrimary</item>
-        <item name="boxStrokeErrorColor">@color/colorAccent</item>
+    <!-- ── TextInputLayout – OutlinedBox Dense (forms/tools) ────────── -->
+    <style name="AppTextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOutlineVariant</item>
+        <item name="boxStrokeErrorColor">?attr/colorError</item>
+        <item name="helperTextTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="errorTextColor">?attr/colorError</item>
     </style>
 
-    <!-- ── TextInputLayout – OutlinedBox (larger, for login page) ──────── -->
-    <style name="AppTextInputBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="hintTextColor">@color/textColorSecondary</item>
-        <item name="boxStrokeColor">@color/colorPrimary</item>
-        <item name="boxStrokeErrorColor">@color/colorAccent</item>
+    <!-- ── TextInputLayout – Filled (login page) ────────────────────── -->
+    <style name="AppTextInputBox" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="hintTextColor">?attr/colorPrimary</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerHighest</item>
+        <item name="helperTextTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="errorTextColor">?attr/colorError</item>
     </style>
 
-    <!-- ── Standalone EditText (dialog, profile) ────────────────────────── -->
+    <!-- ── Standalone EditText ──────────────────────────────────────── -->
     <style name="AppEditText" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:textColorHint">@color/textColorHint</item>
     </style>
 
-    <!-- ── Chip.Filter with app color scheme ────────────────────────────── -->
-    <style name="AppChip" parent="Widget.MaterialComponents.Chip.Filter">
+    <!-- ── Filter Chip ──────────────────────────────────────────────── -->
+    <style name="AppChip" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/chip_bg_color</item>
         <item name="android:textColor">@color/chip_text_color</item>
-        <item name="chipStrokeColor">@color/colorPrimaryTintBg</item>
+        <item name="chipStrokeColor">?attr/colorOutlineVariant</item>
         <item name="chipStrokeWidth">1dp</item>
     </style>
 
-    <!-- ── Cell info card label/value styles ────────────────────────────── -->
+    <!-- ── Section card header title ────────────────────────────────── -->
+    <style name="SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <!-- ── Cell identity row: label / value ─────────────────────────── -->
     <style name="CellLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">10.5sp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelSmall</item>
         <item name="android:textColor">@color/textColorSecondary</item>
-        <item name="android:layout_marginEnd">3dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
     </style>
 
     <style name="CellValue">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">11sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:fontFamily">monospace</item>
         <item name="android:layout_marginEnd">8dp</item>
     </style>
 
-    <!-- ── Section card title ────────────────────────────────────────────── -->
-    <style name="SectionTitle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/colorPrimary</item>
-        <item name="android:layout_marginBottom">10dp</item>
-    </style>
 </resources>

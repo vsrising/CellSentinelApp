@@ -237,15 +237,16 @@
 
     </LinearLayout>
 
-    <!-- ── Serving cell info (bottom-left, above compass) ───────────── -->
+    <!-- ── Serving cell info (bottom bar, full-width minus compass) ─── -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_cell_info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="88dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="176dp"
+        android:layout_marginBottom="0dp"
         android:visibility="gone"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp"
@@ -253,7 +254,7 @@
 
         <TextView
             android:id="@+id/tv_cell_info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="10dp"
             android:paddingVertical="6dp"
@@ -415,12 +416,12 @@
     <!-- Compass disc background (appears when expanded) -->
     <View
         android:id="@+id/compass_disc"
-        android:layout_width="240dp"
-        android:layout_height="240dp"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="-28dp"
-        android:layout_marginBottom="-28dp"
+        android:layout_marginEnd="-30dp"
+        android:layout_marginBottom="-30dp"
         android:background="@drawable/bg_compass_disc"
         android:alpha="0"
         android:visibility="invisible" />
@@ -428,18 +429,19 @@
     <!-- Child FAB: 开始/停止路测  (angle 90° = directly above) -->
     <Button
         android:id="@+id/fab_start_stop"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="14dp"
         android:text="开始\n路测"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
+        android:padding="4dp"
         android:background="@drawable/bg_compass_item"
         android:elevation="8dp"
         android:visibility="invisible" />
@@ -447,17 +449,18 @@
     <!-- Child FAB: 测距  (angle 112.5°) -->
     <Button
         android:id="@+id/fab_measure"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="22dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="测距"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:gravity="center"
+        android:padding="4dp"
         android:background="@drawable/bg_compass_item"
         android:elevation="8dp"
         android:visibility="invisible" />
@@ -465,18 +468,19 @@
     <!-- Child FAB: 刷新基站  (angle 135°) -->
     <Button
         android:id="@+id/fab_refresh"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="22dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="刷新\n基站"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
+        android:padding="4dp"
         android:background="@drawable/bg_compass_item"
         android:elevation="8dp"
         android:visibility="invisible" />
@@ -484,18 +488,19 @@
     <!-- Child FAB: 图层切换  (angle 157.5°) -->
     <Button
         android:id="@+id/fab_layer"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="22dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="地图\n图层"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:lineSpacingMultiplier="1.1"
         android:gravity="center"
+        android:padding="4dp"
         android:background="@drawable/bg_compass_item"
         android:elevation="8dp"
         android:visibility="invisible" />
@@ -503,17 +508,18 @@
     <!-- Child FAB: 更多  (angle 180° = directly left) -->
     <Button
         android:id="@+id/fab_more"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="22dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="更多"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:gravity="center"
+        android:padding="4dp"
         android:background="@drawable/bg_compass_item"
         android:elevation="8dp"
         android:visibility="invisible" />

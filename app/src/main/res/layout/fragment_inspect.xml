@@ -4,22 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/inspect_tabs"
+        style="@style/Widget.Material3.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorPrimary"
         app:tabTextColor="@color/colorWhite60"
         app:tabSelectedTextColor="@color/white"
-        app:tabIndicatorColor="@color/colorAccent" />
+        app:tabIndicatorColor="@color/colorAccent"
+        app:tabIndicatorHeight="3dp"
+        app:tabTextAppearance="?attr/textAppearanceLabelLarge" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/inspect_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/background" />
+        android:background="?attr/colorSurface" />
 
 </LinearLayout>
