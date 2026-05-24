@@ -131,6 +131,7 @@ public class CellSignalManager {
     private final List<TelephonyManager> mTMList = new ArrayList<>();
     private final List<PhoneStateMonitor> mMonitorList = new ArrayList<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private Runnable mNotifyRunnable;
 
     private final Runnable mRefreshRunnable = new Runnable() {
         @Override
@@ -146,6 +147,7 @@ public class CellSignalManager {
     public CellSignalManager(Context context, UpdateListener listener) {
         mContext = context;
         mListener = listener;
+        mNotifyRunnable = () -> { if (mListener != null) mListener.onSignalUpdated(); };
 
         TelephonyManager baseTM = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         boolean hasPhonePermission = ContextCompat.checkSelfPermission(context,
@@ -195,6 +197,7 @@ public class CellSignalManager {
 
     public void release() {
         mHandler.removeCallbacks(mRefreshRunnable);
+        mHandler.removeCallbacks(mNotifyRunnable);
         for (int i = 0; i < mTMList.size(); i++) {
             mTMList.get(i).listen(mMonitorList.get(i), PhoneStateListener.LISTEN_NONE);
         }
@@ -216,9 +219,10 @@ public class CellSignalManager {
     }
 
     private void notifyUpdate() {
-        if (mListener != null) {
-            mHandler.post(mListener::onSignalUpdated);
-        }
+        // Debounce: coalesce rapid back-to-back callbacks from both SIM monitors
+        // into a single UI draw so the UI never sees a half-updated state.
+        mHandler.removeCallbacks(mNotifyRunnable);
+        mHandler.postDelayed(mNotifyRunnable, 80);
     }
 
     // -----------------------------------------------------------------------
@@ -260,7 +264,14 @@ public class CellSignalManager {
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
-            refreshFromAllCellInfo();
+            // On Q+, cell info is kept fresh by the 1-second requestCellInfoUpdate() cycle
+            // and onCellInfoChanged(). Calling getAllCellInfo() here returns stale OS-cached
+            // data and on secondary-modem slots (physical slot 1 in DSDS) this callback fires
+            // far more frequently than on the primary modem, causing repeated clearServingData()
+            // + re-parse cycles that manifest as jitter on the SIM1 tab.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                refreshFromAllCellInfo();
+            }
             mData.operatorName = mTM.getNetworkOperatorName();
             notifyUpdate();
         }
@@ -290,31 +301,10 @@ public class CellSignalManager {
             mData.neighborCellData.clear();
 
             for (CellInfo cellInfo : list) {
-                // Determine whether this cell belongs to this SIM's subscription.
-                // Android R+ exposes CellInfo.getSubscriptionId() via public API.
-                boolean subIdMatch = true;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                        && mData.subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                    try {
-                        int subId = (int) CellInfo.class
-                                .getMethod("getSubscriptionId")
-                                .invoke(cellInfo);
-                        subIdMatch = (subId == mData.subscriptionId);
-                    } catch (Exception ignored) {}
-                }
-
+                if (!cellBelongsToThisSim(cellInfo)) continue;
                 if (cellInfo.isRegistered()) {
-                    if (!subIdMatch) continue;
-                    // Pre-R fallback: filter by this SIM's reported RAT to prevent
-                    // the other SIM's registered cell from being parsed into our data.
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
-                            && mData.subscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID
-                            && !ratMatchesThisSim(cellInfo)) {
-                        continue;
-                    }
                     parseServingCell(cellInfo);
                 } else {
-                    if (!subIdMatch) continue; // R+: keep neighbor list per-SIM
                     NeighborCell nc = buildNeighborCell(cellInfo);
                     if (nc != null) {
                         mData.neighborCellData.add(nc);
@@ -322,6 +312,38 @@ public class CellSignalManager {
                     }
                 }
             }
+        }
+
+        /**
+         * Three-tier subscription filter:
+         *  1. subId exact match → include
+         *  2. subId == INVALID (-1) or reflection failed → RAT fallback (handles backup SIMs
+         *     whose CellInfo entries are not tagged by the OS, common on Samsung dual-SIM)
+         *  3. subId belongs to a different SIM → exclude
+         */
+        @SuppressLint("MissingPermission")
+        private boolean cellBelongsToThisSim(CellInfo cellInfo) {
+            if (mData.subscriptionId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                return true; // no subscription context, can't filter
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                int cellSubId = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+                try {
+                    cellSubId = (int) CellInfo.class
+                            .getMethod("getSubscriptionId")
+                            .invoke(cellInfo);
+                } catch (Exception ignored) {}
+
+                if (cellSubId == mData.subscriptionId) {
+                    return true;  // exact match
+                } else if (cellSubId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                    return ratMatchesThisSim(cellInfo); // untagged cell: use RAT fallback
+                } else {
+                    return false; // confirmed different SIM
+                }
+            }
+            // Pre-R: RAT-only filter
+            return ratMatchesThisSim(cellInfo);
         }
 
         private void clearServingData() {
